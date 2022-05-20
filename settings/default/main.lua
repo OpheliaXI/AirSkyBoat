@@ -206,7 +206,7 @@ xi.settings.main =
     DIG_ZONE_LIMIT               = 120,  -- Set max amount of items that can be dug from a specific zone every Vana'Diel Day. Set to 0 to disable.
     DIG_GRANT_BURROW             = 0,
     DIG_GRANT_BORE               = 0,
-    DIG_DISTANCE_REQ             = 1, -- Sets the distance squared in yalms of how far a player has to move.
+    DIG_DISTANCE_REQ             = 0, -- Sets the distance squared in yalms of how far a player has to move.
 
     -- MISC
     RIVERNE_PORTERS              = 120,  -- Time in seconds that Unstable Displacements in Cape Riverne stay open after trading a scale.
