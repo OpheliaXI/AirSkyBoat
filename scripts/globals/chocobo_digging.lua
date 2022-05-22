@@ -801,54 +801,26 @@ local digInfo =
     },
 }
 
-local function updatePlayerDigCount(player, increment)
-    if increment == 0 then
-        player:setVolatileCharVar('[DIG]DigCount', 0)
-    else
-        player:setVolatileCharVar('[DIG]DigCount', player:getCharVar('[DIG]DigCount') + increment)
-    end
-
-    player:setVolatileCharVar('[DIG]LastDigTime', os.time())
-end
-
---[[ Not Implemented
-local function updateZoneDigCount(zoneId, increment)
-    local serverVar = '[DIG]ZONE' .. zoneId .. '_ITEMS'
-
-    -- 0 means we wanna wipe (probably only gonna happen onGameDay or something)
-    if increment == 0 then
-        SetServerVariable(serverVar, 0)
-    else
-        SetServerVariable(serverVar, GetServerVariable(serverVar) + increment)
-    end
-end
-]]--
-
+-- Check if player can dig. Returns boolean.
 local function canDig(player)
-    local digCount = player:getCharVar('[DIG]DigCount')
-    local lastDigTime = player:getCharVar('[DIG]LastDigTime')
-    local zoneItemsDug = GetServerVariable('[DIG]ZONE'..player:getZoneID()..'_ITEMS')
-    local zoneInTime = player:getLocalVar('ZoneInTime')
-    local currentTime = os.time()
-    local skillRank = player:getSkillRank(xi.skill.DIG)
+    -- NOTE:
+    -- Players are able to dig even when fatigued or when zone is empty of items.
+    -- It just means they wont dig up anything nor will they be able to skill up.
 
-    -- base delay -5 for each rank
-    local digDelay = 16 - (skillRank * 5)
-    local areaDigDelay = 60 - (skillRank * 5)
+    -- Check: Gysahl green in main inventory.
+    if player:hasItem(4545, 0) then
+        local zoneInTime   = player:getLocalVar('ZoneInTime')
+        local lastDigTime  = player:getCharVar('[DIG]LastDigTime')
+        local skillRank    = player:getSkillRank(xi.skill.DIG)
+        local digDelay     = utils.clamp(16 - (skillRank * 5), 4, 16) -- Base delay -5 for each rank. Minimun 4 seconds.
+        local areaDigDelay = 60 - (skillRank * 5)
+        local currentTime  = os.time()
 
-    local prevMidnight = getMidnight() - 86400
-
-    -- Last dig was before today, so reset player fatigue
-    if lastDigTime < prevMidnight then
-        updatePlayerDigCount(player, 0)
-        digCount = 0
-    end
-
-    -- neither player nor zone have reached their dig limit
-
-    if (digCount < 100 and zoneItemsDug < 20) or xi.settings.main.DIG_FATIGUE == 0 then
-        -- pesky delays
-        if (zoneInTime + areaDigDelay) <= currentTime and (lastDigTime + digDelay) <= currentTime then
+        -- Check: Delays.
+        if
+            (zoneInTime + areaDigDelay) <= currentTime and -- Initial delay on Zone-in.
+            (lastDigTime + digDelay) <= currentTime        -- Delay in between digs.
+        then
             return true
         end
     end
@@ -856,48 +828,40 @@ local function canDig(player)
     return false
 end
 
+-- Calculate skill up.
 local function calculateSkillUp(player)
-    local skillRank = player:getSkillRank(xi.skill.DIG)
-    local maxSkill = utils.clamp((skillRank + 1) * 100, 0, 1000)
-    local realSkill = player:getCharSkillLevel(xi.skill.DIG)
-    local increment = 1
+    local skillRank     = player:getSkillRank(xi.skill.DIG)
+    local realSkill     = player:getCharSkillLevel(xi.skill.DIG)
+    local skillUpChance = 20 * skillRank + 20
 
-    -- this probably needs correcting
-    local roll = math.random(0, 100)
+    if math.random(1, skillUpChance) == 1 then
+        player:setSkillLevel(xi.skill.DIG, realSkill + 1)
 
-    -- make sure our skill isn't capped
-    if realSkill < maxSkill then
-        -- can we skill up?
-        if roll <= 15 then
-            if (increment + realSkill) > maxSkill then
-                increment = maxSkill - realSkill
-            end
-
-            -- skill up!
-            player:setSkillLevel(xi.skill.DIG, realSkill + increment)
-
-            -- update the skill rank
-            -- Digging does not have test items, so increment rank once player hits 10.0, 20.0, .. 100.0
-            if (realSkill + increment) >= (skillRank * 100) + 100 then
-                player:setSkillRank(xi.skill.DIG, skillRank + 1)
-            end
+        -- Increment rank once player hits 10.0, 20.0, .. 100.0
+        if (realSkill + 1) >= (skillRank * 100) + 100 then
+            player:setSkillRank(xi.skill.DIG, skillRank + 1)
         end
     end
 end
 
+-- Calculate item dug.
 local function getChocoboDiggingItem(player)
-    local allItems = digInfo[player:getZoneID()]
-    local burrowAbility = (xi.settings.main.DIG_GRANT_BURROW == 1) and 1 or 0
-    local boreAbility = (xi.settings.main.DIG_GRANT_BORE == 1) and 1 or 0
-    local modifier = player:getMod(xi.mod.EGGHELM)
-    local totd = VanadielTOTD()
-    local weather = player:getWeather()
-    local moon = VanadielMoonPhase()
-
-    -- filter allItems to possibleItems and sum weights
+    local allItems      = digInfo[player:getZoneID()]
+    local burrowAbility = (xi.settings.DIG_GRANT_BURROW == 1) and 1 or 0
+    local boreAbility   = (xi.settings.DIG_GRANT_BORE == 1) and 1 or 0
+    local modifier      = player:getMod(xi.mod.EGGHELM)
+    local totd          = VanadielTOTD()
+    -- Zone Weather
+    local weather       = player:getZone():getWeather()
+    -- Waxing 7% - 24%
+    local moon          = VanadielMoonPhase()
+    local moonDirection = VanadielMoonDirection()
+    local DigRank       = player:getSkillRank(xi.skill.DIG)
+    -- Filter allItems to possibleItems and sum weights
     local possibleItems = {}
     local sum = 0
 
+    -- Generate a table with items the player can actually dig up based on weather, time, moon, skills, etc...
     for i = 1, #allItems do
         local item = allItems[i]
         local itemReq = item[3]
@@ -908,25 +872,84 @@ local function getChocoboDiggingItem(player)
             (itemReq == digReq.MODIFIER and modifier == 1) or
             (itemReq == digReq.NIGHT and totd == xi.time.NIGHT)
         then
-            sum = sum + item[2]
+            -- skill up weight variation and ore moon variation
+            itemWeight = item[2]
+
+            if DigRank > 0 then
+                if itemWeight >= 150 then
+                    itemWeight = itemWeight * (0.95^DigRank)
+                elseif itemWeight >= 125 then
+                    itemWeight = itemWeight * (0.97^DigRank)
+                elseif itemWeight >= 100 then
+                    itemWeight = itemWeight * (0.99^DigRank)
+                elseif itemWeight >= 50 then
+                    itemWeight = itemWeight * (1.03^DigRank)
+                elseif itemWeight >= 1 then
+                    itemWeight = itemWeight * (1.05^DigRank)
+                end
+            end
+
+            if item[1] == 1255 then
+                if moon >= 7 and moon <= 9 then
+                    itemWeight = itemWeight * 0.7
+                elseif moon >= 10 and moon <= 14 then
+                    itemWeight = itemWeight
+                elseif moon >= 15 and moon <= 21 then
+                    itemWeight = itemWeight * 0.9
+                elseif moon >= 21 and moon <= 24 then
+                    itemWeight = itemWeight * 0.5
+                end
+            end
+
+            sum = sum + itemWeight
             table.insert(possibleItems, item)
         end
     end
 
-    -- pick weighted result
+    -- Pick weighted result.
     local itemId = 0
     local pick = math.random(sum)
     sum = 0
 
     for i = 1, #possibleItems do
-        sum = sum + possibleItems[i][2]
+        itemWeight = possibleItems[i][2]
+
+        -- Skill-up weight variation and ore moon variation.
+        if DigRank > 0 then
+            if itemWeight >= 150 then
+                itemWeight = itemWeight * (0.95^DigRank)
+            elseif itemWeight >= 125 then
+                itemWeight = itemWeight * (0.97^DigRank)
+            elseif itemWeight >= 100 then
+                itemWeight = itemWeight * (0.99^DigRank)
+            elseif itemWeight >= 50 then
+                itemWeight = itemWeight * (1.03^DigRank)
+            elseif itemWeight >= 1 then
+                itemWeight = itemWeight * (1.05^DigRank)
+            end
+        end
+
+        if possibleItems[i][1] == 1255 then
+            if moon >= 7 and moon <= 9 then
+                itemWeight = itemWeight * 0.7
+            elseif moon >= 10 and moon <= 14 then
+                itemWeight = itemWeight
+            elseif moon >= 15 and moon <= 21 then
+                itemWeight = itemWeight * 0.9
+            elseif moon >= 21 and moon <= 24 then
+                itemWeight = itemWeight * 0.5
+            end
+        end
+
+        sum = sum + itemWeight
+
         if sum >= pick then
             itemId = possibleItems[i][1]
             break
         end
     end
 
-    -- item is a crystal or ore
+    -- Item is a crystal or ore
     if itemId == 4096 then
         if weather >= xi.weather.HOT_SPELL then
             itemId = crystalMap[weather]
@@ -944,64 +967,96 @@ local function getChocoboDiggingItem(player)
     return itemId
 end
 
+-- Main function.
 xi.chocoboDig.start = function(player, precheck)
+    -- Make sure the player can dig before going any further.
+    if not canDig(player) then
+        return
+    end
+
+    -- Handle AMK07 first thing.
     local zoneId = player:getZoneID()
-    local text = zones[zoneId].text
+    local text   = zones[zoneId].text
 
-    -- make sure the player can dig before going any further
-    -- (and also cause i need a return before core can go any further with this)
-    if precheck then
-        return canDig(player)
+    if
+        xi.settings.ENABLE_AMK == 1 and
+        player:getCurrentMission(xi.mission.log_id.AMK) == xi.mission.id.amk.SHOCK_ARRANT_ABUSE_OF_AUTHORITY and
+        xi.amk.helpers.chocoboDig(player, zoneId, text)
+    then
+        player:setCharVar('[DIG]LastDigTime', os.time())
 
-    else
-        local roll = math.random(0, 100)
-        local moon = VanadielMoonPhase()
+        return
+    end
 
-        -- 45-60% moon phase results in a much lower dig chance than the rest of the phases
-        if moon >= 45 and moon <= 60 then
-            roll = roll * .5
-        end
+    -- Handle player fatigue and zone dig limit automatic fails.
+    local lastDigTime  = player:getCharVar('[DIG]LastDigTime')
+    local digCount     = player:getCharVar('[DIG]DigCount')
+    local zoneItemsDug = GetServerVariable('[DIG]ZONE'..player:getZoneID()..'_ITEMS')
 
-        -- AMK07
-        if
-            xi.settings.main.ENABLE_AMK == 1 and
-            player:getCurrentMission(xi.mission.log_id.AMK) == xi.mission.id.amk.SHOCK_ARRANT_ABUSE_OF_AUTHORITY and
-            xi.amk.helpers.chocoboDig(player, zoneId, text)
-        then
-            return
-        end
+    if lastDigTime < (getMidnight() - 86400) then
+        player:setCharVar('[DIG]DigCount', 0) -- Reset player dig count/fatigue.
+        digCount = 0
+    end
 
-        -- dig chance failure
-        if roll > xi.settings.main.DIGGING_RATE then
-            player:messageText(player, text.FIND_NOTHING)
-
-        -- dig chance success
-        else
-            local itemId = getChocoboDiggingItem(player)
-
-            -- success!
-            if itemId ~= 0 then
-                -- make sure we have enough room for the item
-                if player:addItem(itemId) then
-                    player:messageSpecial(text.ITEM_OBTAINED, itemId)
-                else
-                    player:messageSpecial(text.DIG_THROW_AWAY, itemId)
-                end
-
-                player:triggerRoeEvent(xi.roe.triggers.chocoboDigSuccess)
-
-            -- got a crystal ore, but lacked weather or skill to dig it up
-            else
-                player:messageText(player, text.FIND_NOTHING, false)
-            end
-
-            updatePlayerDigCount(player, 1)
-            -- updateZoneDigCount(zoneId, 1) -- TODO: implement mechanic for resetting zone dig count. until then, leave this commented out
-            -- TODO: learn abilities from chocobo raising
-        end
-
-        calculateSkillUp(player)
+    if
+        (digCount >= xi.settings.DIG_FATIGUE and xi.settings.DIG_FATIGUE > 0) or
+        (zoneItemsDug >= xi.settings.DIG_ZONE_LIMIT and xi.settings.DIG_ZONE_LIMIT > 0)
+    then
+        player:setCharVar('[DIG]LastDigTime', os.time())
+        player:messageText(player, text.FIND_NOTHING)
 
         return true
     end
+
+    -- We can perform an actual dig.
+    local skillRank     = player:getSkillRank(xi.skill.DIG)
+    local skillModifier = 0.5 + (skillRank / 20) -- 0.5 at "Amateur", 0.55 at "Recruit", 0.6 at "Initiate", and so on, to 1 at "Expert".
+    local itemId        = getChocoboDiggingItem(player)
+
+    -- Moon work
+    local moon = VanadielMoonPhase()
+
+    if moon < 50 then
+        moon = 100 - moon -- This converts moon phase percent to a number that represents how FAR the moon phase is from 50.
+    end
+
+    local moonModifier = 1 - (100 - moon) / 100 -- The more the moon phase is from 50, the closer we get to 100% on this modifier.
+
+    -- Dig failure.
+    if
+        math.random(1, 100) > (xi.settings.DIG_RATE * moonModifier * skillModifier) or -- Base digging rate is 85% and it is multiplied by the moon and skill modifiers.
+        itemId == 0
+    then
+        player:messageText(player, text.FIND_NOTHING)
+
+    -- Dig success.
+    else
+        -- Make sure we have enough room for the item.
+        if player:addItem(itemId) then
+            local zonedug = '[DIG]ZONE'..player:getZoneID()..'_ITEMS'
+            SetServerVariable(zonedug, GetServerVariable(zonedug) + 1)
+            player:messageSpecial(text.ITEM_OBTAINED, itemId)
+        else
+            player:messageSpecial(text.DIG_THROW_AWAY, itemId)
+        end
+
+        -- "Blue Race Silks" Modifier. Bypasses player dig fatigue count and displays a different message.
+        if math.random(1, 100) < player:getMod(xi.mod.DIG_BYPASS_FATIGUE) then
+            -- TODO: Find special message displayed and add it here.
+        else
+            player:setCharVar('[DIG]DigCount', player:getCharVar('[DIG]DigCount') + 1)
+        end
+
+        player:triggerRoeEvent(xi.roe.triggers.chocoboDigSuccess)
+
+        -- TODO: Learn abilities from chocobo raising.
+    end
+
+    player:setCharVar('[DIG]LastDigTime', os.time())
+
+    if skillRank < 10 then -- Safety check. Let's not try to skill-up if at max skill.
+        calculateSkillUp(player)
+    end
+
+    return true
 end
