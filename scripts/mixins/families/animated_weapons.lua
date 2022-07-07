@@ -3,7 +3,7 @@
 
 require("scripts/globals/mixins")
 require("scripts/zones/Dynamis-Xarcabard/IDs")
-require("modules/era/lua/dynamis/globals/era_dynamis_spawning")
+require("modules/era/lua_dynamis/globals/era_dynamis_spawning")
 
 g_mixins = g_mixins or {}
 g_mixins.families = g_mixins.families or {}
@@ -11,22 +11,22 @@ g_mixins.families = g_mixins.families or {}
 local ID = zones[xi.zone.DYNAMIS_XARCABARD]
 local dialogChoice =
 {
-    ["DE_AKnu"] = ID.text.ANIMATED_KNUCKLES_DIALOG,
-    ["DE_ADag"] = ID.text.ANIMATED_DAGGER_DIALOG,
-    ["DE_ALon"] = ID.text.ANIMATED_LONGSWORD_DIALOG,
-    ["DE_ACla"] = ID.text.ANIMATED_CLAYMORE_DIALOG,
-    ["DE_ATab"] = ID.text.ANIMATED_TABAR_DIALOG,
-    ["DE_AGre"] = ID.text.ANIMATED_GREATAXE_DIALOG,
-    ["DE_ASpe"] = ID.text.ANIMATED_SPEAR_DIALOG,
-    ["DE_AScy"] = ID.text.ANIMATED_SCYTHE_DIALOG,
-    ["DE_AKun"] = ID.text.ANIMATED_KUNAI_DIALOG,
-    ["DE_ATac"] = ID.text.ANIMATED_TACHI_DIALOG,
-    ["DE_AHam"] = ID.text.ANIMATED_HAMMER_DIALOG,
-    ["DE_ASta"] = ID.text.ANIMATED_STAFF_DIALOG,
-    ["DE_Alon"] = ID.text.ANIMATED_LONGBOW_DIALOG,
-    ["DE_AGun"] = ID.text.ANIMATED_GUN_DIALOG,
-    ["DE_AHor"] = ID.text.ANIMATED_HORN_DIALOG,
-    ["DE_AShi"] = ID.text.ANIMATED_SHIELD_DIALOG,
+    [162] = ID.text.ANIMATED_KNUCKLES_DIALOG,
+    [152] = ID.text.ANIMATED_DAGGER_DIALOG,
+    [165] = ID.text.ANIMATED_LONGSWORD_DIALOG,
+    [154] = ID.text.ANIMATED_CLAYMORE_DIALOG,
+    [158] = ID.text.ANIMATED_TABAR_DIALOG,
+    [163] = ID.text.ANIMATED_GREATAXE_DIALOG,
+    [160] = ID.text.ANIMATED_SPEAR_DIALOG,
+    [166] = ID.text.ANIMATED_SCYTHE_DIALOG,
+    [161] = ID.text.ANIMATED_KUNAI_DIALOG,
+    [157] = ID.text.ANIMATED_TACHI_DIALOG,
+    [151] = ID.text.ANIMATED_HAMMER_DIALOG,
+    [159] = ID.text.ANIMATED_STAFF_DIALOG,
+    [156] = ID.text.ANIMATED_LONGBOW_DIALOG,
+    [155] = ID.text.ANIMATED_GUN_DIALOG,
+    [164] = ID.text.ANIMATED_HORN_DIALOG,
+    [153] = ID.text.ANIMATED_SHIELD_DIALOG,
 }
 
 g_mixins.families.animated_weapons = function(animatedMob)
@@ -35,7 +35,7 @@ g_mixins.families.animated_weapons = function(animatedMob)
         mob:SetMagicCastingEnabled(true)
         mob:SetAutoAttackEnabled(true)
         mob:SetMobAbilityEnabled(true)
-        mob:setLocalVar("Text", dialogChoice[mob:getName()])
+        mob:setLocalVar("Text", dialogChoice[mob:getLocalVar("MobIndex")])
         mob:setLocalVar("Text_Index_1", 4)
         mob:setLocalVar("Text_Index_2", 3)
     end)
