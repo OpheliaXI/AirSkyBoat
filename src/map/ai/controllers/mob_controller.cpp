@@ -334,7 +334,7 @@ bool CMobController::MobSkill(int wsList)
             continue;
         }
 
-        if (PMobSkill->getValidTargets() == TARGET_ENEMY) // enemy
+        if (PMobSkill->getValidTargets() == TARGET_ENEMY && PMob->GetBattleTarget() != nullptr) // enemy
         {
             if (PMob->GetBattleTarget()->StatusEffectContainer->HasStatusEffect(EFFECT_ALL_MISS) && PMob->GetBattleTarget()->StatusEffectContainer->GetStatusEffect(EFFECT_ALL_MISS)->GetPower() == 2) // Handles Super Jump
             {

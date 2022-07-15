@@ -2668,7 +2668,6 @@ void CLuaBaseEntity::warp()
     auto* PChar = static_cast<CCharEntity*>(m_PBaseEntity);
 
     PChar->loc.boundary    = 0;
-    PChar->m_moghouseID    = 0;
     PChar->loc.p           = PChar->profile.home_point.p;
     PChar->loc.destination = PChar->profile.home_point.destination;
 
@@ -2676,7 +2675,7 @@ void CLuaBaseEntity::warp()
     PChar->animation = ANIMATION_NONE;
 
     PChar->clearPacketList();
-    charutils::SendToZone(PChar, 2, zoneutils::GetZoneIPP(m_PBaseEntity->loc.destination));
+    charutils::SendToZone(PChar, 2, zoneutils::GetZoneIPP(PChar->loc.destination));
 }
 
 /************************************************************************
@@ -11221,7 +11220,14 @@ int CLuaBaseEntity::getRACC()
 
     auto* PEntity = static_cast<CBattleEntity*>(m_PBaseEntity);
 
-    return PEntity->RACC(weapon->getSkillType(), distance(PEntity->loc.p, PEntity->GetBattleTarget()->loc.p),  weapon->getILvlSkill());
+    if (PEntity->GetBattleTarget() != nullptr)
+    {
+        return PEntity->RACC(weapon->getSkillType(), distance(PEntity->loc.p, PEntity->GetBattleTarget()->loc.p),  weapon->getILvlSkill());
+    }
+    else
+    {
+        return PEntity->RACC(weapon->getSkillType(), distance(PEntity->loc.p, PEntity->loc.p),  weapon->getILvlSkill());
+    }
 }
 
 /************************************************************************
@@ -11245,7 +11251,14 @@ uint16 CLuaBaseEntity::getRATT()
 
     auto* PEntity = static_cast<CBattleEntity*>(m_PBaseEntity);
 
-    return PEntity->RATT(weapon->getSkillType(), distance(PEntity->loc.p, PEntity->GetBattleTarget()->loc.p),  weapon->getILvlSkill());
+    if (PEntity->GetBattleTarget() != nullptr)
+    {
+        return PEntity->RATT(weapon->getSkillType(), distance(PEntity->loc.p, PEntity->GetBattleTarget()->loc.p),  weapon->getILvlSkill());
+    }
+    else
+    {
+        return PEntity->RATT(weapon->getSkillType(), distance(PEntity->loc.p, PEntity->loc.p),  weapon->getILvlSkill());
+    }
 }
 
 /************************************************************************
