@@ -447,8 +447,8 @@ namespace zoneutils
                             break;
                         default:
                             break;
-                }
-                ((CItemWeapon*)PMob->m_Weapons[SLOT_MAIN])->setDmgType(damageType);
+                    }
+                    ((CItemWeapon*)PMob->m_Weapons[SLOT_MAIN])->setDmgType(damageType);
 
                     PMob->m_dmgMult = sql->GetUIntData(18);
                     ((CItemWeapon*)PMob->m_Weapons[SLOT_MAIN])->setDelay((sql->GetIntData(19) * 1000) / 60);
