@@ -542,7 +542,7 @@ namespace petutils
         PMob->stats.INT = (uint16)((fINT + mINT) * 0.9f);
         PMob->stats.MND = (uint16)((fMND + mMND) * 0.9f);
         PMob->stats.CHR = (uint16)((fCHR + mCHR) * 0.9f);
-        
+
         // Set jugs damageType to impact (blunt) damage. All jugs at level 75 cap do impact (blunt) damage. https://ffxiclopedia.fandom.com/wiki/Category:Familiars
         PMob->m_dmgType = DAMAGE_TYPE::IMPACT;
     }
@@ -886,7 +886,7 @@ namespace petutils
             PPet->addModifier(Mod::MACC, PMaster->getMod(Mod::PET_MACC_MEVA));
             PPet->addModifier(Mod::MEVA, PMaster->getMod(Mod::PET_MACC_MEVA));
         }
-        
+
         // Set damageType for Avatars
         if (PPet->m_PetID == PETID_CAIT_SITH || PPet->m_PetID == PETID_FENRIR)
             PPet->m_dmgType = DAMAGE_TYPE::SLASHING;
@@ -1777,7 +1777,7 @@ namespace petutils
         // Set D evasion and def
         PPet->setModifier(Mod::EVA, battleutils::GetMaxSkill(SKILL_HAND_TO_HAND, JOB_WAR, PPet->GetMLevel()));
         PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(SKILL_HAND_TO_HAND, JOB_WAR, PPet->GetMLevel()));
-        
+
         // Set wyvern damageType to slashing damage. "Wyverns do slashing damage..." https://www.bg-wiki.com/ffxi/Wyvern_(Dragoon_Pet)
         PPet->m_dmgType = DAMAGE_TYPE::SLASHING;
 
