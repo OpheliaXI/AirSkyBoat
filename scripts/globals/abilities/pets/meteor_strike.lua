@@ -29,7 +29,7 @@ ability_object.onPetAbility = function(target, pet, skill)
 
     local damage = 96 + (dINT * 1.5)
     damage = xi.mobskills.mobMagicalMove(pet, target, skill, damage, xi.magic.ele.FIRE, dmgmod, xi.mobskills.magicalTpBonus.NO_EFFECT, 0)
-    damage = xi.mobskills.mobAddBonuses(pet, target, damage.dmg, xi.magic.ele.FIRE)
+    damage = xi.mobskills.mobAddBonuses(pet, target, damage, xi.magic.ele.FIRE)
     damage = xi.summon.avatarFinalAdjustments(damage, pet, skill, target, xi.attackType.MAGICAL, xi.damageType.FIRE, 1)
 
     target:takeDamage(damage, pet, xi.attackType.MAGICAL, xi.damageType.FIRE)
