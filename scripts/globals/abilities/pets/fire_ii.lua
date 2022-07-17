@@ -21,7 +21,7 @@ ability_object.onPetAbility = function(target, pet, skill)
     if tp < 1500 then
         damage = math.floor(damage * (22/256) * (tp/10) + (384/256))
     else
-        damage = math.floor(damage * ((22/256) * (1000/10)) + ((9/256) * ((tp-1000)/10) + 384/256))
+        damage = math.floor(damage * ((22/256) * (1500/10)) + ((9/256) * ((tp-1500)/10) + 384/256))
     end
 
     damage = damage + (dINT * 1.5)
