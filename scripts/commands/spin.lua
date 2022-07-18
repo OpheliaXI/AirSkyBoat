@@ -15,6 +15,7 @@ function error(player, msg)
 end
 
 function onTrigger(player, targ)
+    local target = nil
     -- validate target
     if targ then
         target = GetPlayerByName(targ)
