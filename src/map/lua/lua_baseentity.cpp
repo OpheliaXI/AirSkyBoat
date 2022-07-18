@@ -2580,7 +2580,7 @@ uint8 CLuaBaseEntity::getRotPos()
 
 void CLuaBaseEntity::setRotation(uint8 rotation)
 {
-    if (m_BaseEntity == nullptr)
+    if (m_PBaseEntity == nullptr)
     {
         return;
     }
@@ -14414,7 +14414,7 @@ bool CLuaBaseEntity::deleteRaisedChocobo()
 bool CLuaBaseEntity::clearSession(std::string const& playerName)
 {
     const char* charName = playerName.c_str();
-    const char* Query = "DELETE FROM accounts_sessions WHERE charid IN (SELECT charid from chars where charname = '%s')";
+    const char* Query    = "DELETE FROM accounts_sessions WHERE charid IN (SELECT charid from chars where charname = '%s')";
 
     if (sql->Query(Query, charName) == SQL_SUCCESS && sql->AffectedRows() > 0)
     {
