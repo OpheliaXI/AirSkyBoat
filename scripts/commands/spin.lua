@@ -11,7 +11,7 @@ cmdprops =
 
 function error(player, msg)
     player:PrintToPlayer(msg)
-    player:PrintToPlayer("!spin <rotation> <player>")
+    player:PrintToPlayer("!spin <player>")
 end
 
 function onTrigger(player, targ)
