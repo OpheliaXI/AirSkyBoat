@@ -16,6 +16,9 @@ g_mixins.claim_shield = function(claimshieldMob)
         mob:setClaimable(false)
         mob:setUnkillable(true)
         mob:setCallForHelpBlocked(true)
+        mob:addStatusEffect(xi.effect.PHYSICAL_SHIELD, 999, 3, 9999)
+        mob:addStatusEffect(xi.effect.MAGIC_SHIELD, 999, 3, 9999)
+        mob:addStatusEffect(xi.effect.ARROW_SHIELD, 999, 3, 9999)
         mob:stun(claimshieldTime)
 
         mob:timer(claimshieldTime, function(mobArg)
@@ -26,6 +29,9 @@ g_mixins.claim_shield = function(claimshieldMob)
             mobArg:setCallForHelpBlocked(false)
 
             mobArg:resetAI()
+            mobArg:delStatusEffectSilent(xi.effect.PHYSICAL_SHIELD)
+            mobArg:delStatusEffectSilent(xi.effect.MAGIC_SHIELD)
+            mobArg:delStatusEffectSilent(xi.effect.ARROW_SHIELD)
             mobArg:setHP(mobArg:getMaxHP())
 
             local winner = utils.randomEntry(enmityList)["entity"]
