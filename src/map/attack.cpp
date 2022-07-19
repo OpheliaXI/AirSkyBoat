@@ -536,7 +536,7 @@ void CAttack::ProcessDamage(bool isCritical)
         SetAttackType(PHYSICAL_ATTACK_TYPE::SAMBA);
     }
 
-    if (m_attacker->objtype == TYPE_PET && m_attacker->GetBattleTarget() != nullptr && m_attacker->GetBattleTarget()->getMod(Mod::PET_DMG_TAKEN_PHYSICAL) != 0)
+    if (m_attacker->objtype == TYPE_PET && m_attacker->GetBattleTarget() != nullptr && m_attacker->GetBattleTarget()->getMod(Mod::PET_DMG_TAKEN_PHYSICAL) != NULL)
     {
         int32 dmgMult = m_attacker->GetBattleTarget()->getMod(Mod::PET_DMG_TAKEN_PHYSICAL) / 100;
         m_damage += m_damage * dmgMult;
