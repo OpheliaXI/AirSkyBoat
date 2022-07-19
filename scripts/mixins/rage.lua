@@ -53,8 +53,8 @@ g_mixins.rage = function(rageMob)
             -- boost mods
             for _, buff in pairs(rageBuffs) do
                 local amt = math.ceil(mob:getMainLvl() * buff[2])
-                mob:setLocalVar("[rage]mod_" .. buff[1], buff[2])
-                mob:addMod(buff[1], buff[2])
+                mob:setLocalVar("[rage]mod_" .. buff[1], amt)
+                mob:addMod(buff[1], amt)
             end
         end
     end)
@@ -73,7 +73,7 @@ g_mixins.rage = function(rageMob)
             for _, buff in pairs(rageBuffs) do
                 local amt = mob:getLocalVar("[rage]mod_" .. buff[1])
                 mob:setLocalVar("[rage]mod_" .. buff[1], 0)
-                mob:delMod(buff[1], buff[2])
+                mob:delMod(buff[1], amt)
             end
         end
     end)
