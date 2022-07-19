@@ -271,7 +271,7 @@ xi.mobskills.mobPhysicalMove = function(mob, target, skill, numberofhits, accmod
         skill:setMsg(xi.msg.basic.SKILL_MISS)
     end
 
-    if target:getMod(xi.mod.PET_DMG_TAKEN_PHYSICAL) ~= nil then
+    if target:getMod(xi.mod.PET_DMG_TAKEN_PHYSICAL) ~= 0 then
         finaldmg = finaldmg * (target:getMod(xi.mod.PET_DMG_TAKEN_PHYSICAL) / 100)
     end
 
@@ -347,7 +347,7 @@ xi.mobskills.mobMagicalMove = function(mob, target, skill, damage, element, dmgm
         finaldmg = finaldmg * resist
     end
 
-    if target:getMod(xi.mod.PET_DMG_TAKEN_MAGICAL) ~= nil then
+    if target:getMod(xi.mod.PET_DMG_TAKEN_MAGICAL) ~= 0 then
         finaldmg = finaldmg * (target:getMod(xi.mod.PET_DMG_TAKEN_MAGICAL) / 100)
     end
 
@@ -479,7 +479,7 @@ xi.mobskills.mobBreathMove = function(mob, target, percent, base, element, cap)
 
     damage = utils.clamp(damage, 1, cap)
 
-    if target:getMod(xi.mod.PET_DMG_TAKEN_BREATH) ~= nil then
+    if target:getMod(xi.mod.PET_DMG_TAKEN_BREATH) ~= 0 then
         damage = damage * (target:getMod(xi.mod.PET_DMG_TAKEN_BREATH) / 100)
     end
 
