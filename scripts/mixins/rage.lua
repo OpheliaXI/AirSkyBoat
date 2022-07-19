@@ -60,7 +60,7 @@ g_mixins.rage = function(rageMob)
     end)
 
     rageMob:addListener("ROAM_TICK", "RAGE_ROAM_TICK", function(mob)
-        if mob:getLocalVar("[rage]started") == 1 then
+        if mob:getLocalVar("[rage]started") == 1 and mob:getHPP() == 100 then
             mob:setLocalVar("[rage]started", 0)
             -- unboost stats
             for i = xi.mod.STR, xi.mod.CHR do
