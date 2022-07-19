@@ -902,7 +902,7 @@ enum class Mod
     AMNESIARESBUILD        = 1151, // Used to create a resbuild for the appropriate effect. Will decrease overall duration of effect. (Out of 1000)
     LULLABYRESBUILD        = 1152, // Used to create a resbuild for the appropriate effect. Will decrease overall duration of effect. (Out of 1000)
     DEATHRESBUILD          = 1153, // Used to create a resbuild for the appropriate effect. Will decrease overall duration of effect. (Out of 1000)
-    PET_DMG_TAKEN_PHYSICAL = 1154, // Perc ent increase/decrease in pet physical damage taken for the target.
+    PET_DMG_TAKEN_PHYSICAL = 1154, // Percent increase/decrease in pet physical damage taken for the target.
     PET_DMG_TAKEN_MAGICAL  = 1155, // Percent increase/decrease in pet physical damage taken for the target.
     PET_DMG_TAKEN_BREATH   = 1156, // Percent increase/decrease in pet physical damage taken for the target.
 
