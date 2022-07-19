@@ -536,6 +536,12 @@ void CAttack::ProcessDamage(bool isCritical)
         SetAttackType(PHYSICAL_ATTACK_TYPE::SAMBA);
     }
 
+    if (m_attacker->objtype == TYPE_PET && m_attacker->GetBattleTarget() != nullptr && m_attacker->GetBattleTarget()->getMod(Mod::PET_DMG_TAKEN_PHYSICAL) != 0)
+    {
+        int32 dmgMult = m_attacker->GetBattleTarget()->getMod(Mod::PET_DMG_TAKEN_PHYSICAL) / 100;
+        m_damage += m_damage * dmgMult;
+    }
+
     // Get damage multipliers.
     m_damage =
         attackutils::CheckForDamageMultiplier((CCharEntity*)m_attacker, dynamic_cast<CItemWeapon*>(m_attacker->m_Weapons[slot]), m_damage, m_attackType, slot);
