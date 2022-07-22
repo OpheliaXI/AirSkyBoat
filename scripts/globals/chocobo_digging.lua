@@ -781,7 +781,7 @@ local digInfo =
         {  702,  41, digReq.NONE    },
         {  700,  44, digReq.NONE    },
         { 4450,  47, digReq.NONE    },
-        {  703,  26, digReq.NONE    }, 
+        {  703,  26, digReq.NONE    },
         { 4449,  12, digReq.NONE    },
         { 4096, 100, digReq.WEATHER }, -- all crystals
         { 4374,  17, digReq.BURROW  },
@@ -856,7 +856,6 @@ local function canDig(player)
     local currY           = math.floor(posTable.y)
     local currZ           = math.floor(posTable.z)
     local distanceSquared = (lastDigX - currX) * (lastDigX - currX) + (lastDigY - currY) * (lastDigY - currY) + (lastDigZ - currZ) * (lastDigZ - currZ)
-    local zoneItemsDug             = GetServerVariable('[DIG]ZONE'..player:getZoneID()..'_ITEMS')
     local zoneInTime               = player:getLocalVar('ZoneInTime')
     local currentTime     = os.time()
     local skillRank                = player:getSkillRank(xi.skill.DIG)
@@ -915,12 +914,11 @@ Craftsman    21000
 Artisan    27000
 Adept         33000
 Veteran    39000
-Expert         ---- 
+Expert         ----
 ]]
 
 local function calculateSkillUp(player)
     local skillRank  = player:getSkillRank(xi.skill.DIG)
-    local maxSkill   = utils.clamp((skillRank + 1) * 100, 0, 1000) -- if im at 0 i max at 100, if im at 1 i max at 200
     local realSkill  = player:getCharSkillLevel(xi.skill.DIG)
 
     local digsTable = -- Era Dig Table
@@ -1000,10 +998,10 @@ local function getChocoboDiggingItem(player)
 
             if DigRank > 0 then
                 if itemWeight >= 150 then
-                    itemWeight = itemWeight * (0.95^DigRank) 
+                    itemWeight = itemWeight * (0.95^DigRank)
                 elseif itemWeight >= 125 then
                     itemWeight = itemWeight * (0.97^DigRank)
-                elseif itemWeight >= 100 then     
+                elseif itemWeight >= 100 then
                     itemWeight = itemWeight * (0.99^DigRank)
                 elseif itemWeight >= 50 then
                     itemWeight = itemWeight * (1.03^DigRank)
@@ -1035,15 +1033,15 @@ local function getChocoboDiggingItem(player)
     sum          = 0
 
     for i = 1, #possibleItems do
-        local itemWeight = possibleItems[i][2]
+        itemWeight = possibleItems[i][2]
 
         -- skill up weight variation and ore moon variation
         if DigRank > 0 then
             if itemWeight >= 150 then
-                itemWeight = itemWeight * (0.95^DigRank) 
+                itemWeight = itemWeight * (0.95^DigRank)
             elseif itemWeight >= 125 then
                 itemWeight = itemWeight * (0.97^DigRank)
-            elseif itemWeight >= 100 then     
+            elseif itemWeight >= 100 then
                 itemWeight = itemWeight * (0.99^DigRank)
             elseif itemWeight >= 50 then
                 itemWeight = itemWeight * (1.03^DigRank)
@@ -1096,18 +1094,17 @@ xi.chocoboDig.start = function(player, precheck)
         local moon                  = VanadielMoonPhase()
         local moonmodifier          = 1
         local skillmodifier = 0.5 + (skillRank / 20) -- 50% at amateur, 55% at recruit, 60% at initiate, and so on, to 100% at exper
-        local zonedug = '[DIG]ZONE'..player:getZoneID()..'_ITEMS'
+        local zonedug       = '[DIG]ZONE'..player:getZoneID()..'_ITEMS'
         local zoneDugCurrent        = GetServerVariable(zonedug)
 
         if moon < 50 then
             moon = 100 - moon -- This converts moon phase percent to a number that represents how FAR the moon phase is from 50
         end
-      
+
         moonmodifier = 1 - (100 - moon) / 100 -- the more the moon phase is from 50, the closer we get to 100% on this modifier.
 
         if lastDigTime < (getMidnight() - 86400) then
             player:setCharVar('[DIG]DigCount', 0) -- Reset player dig count/fatigue.
-            digCount = 0
         end
 
         if zoneDugCurrent + 1 > DIG_ZONE_LIMIT then
