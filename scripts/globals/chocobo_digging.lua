@@ -864,6 +864,7 @@ local function canDig(player)
     -- base delay -5 for each rank
     local digDelay        = 16 - (skillRank * 5)
     local areaDigDelay    = 60 - (skillRank * 5)
+    digDelay = utils.clamp(digDelay, 4, 16)
 
     if player:hasItem(4545, 0) then
         -- Minimum delay to cover the animation time
@@ -936,7 +937,7 @@ local function calculateSkillUp(player)
     }
 
     -- local digsTable = -- Limit Break Dig Table
-	-- {
+    -- {
         -- [0] = { 2000},
         -- [1] = { 2500},
         -- [2] = { 3300},
@@ -947,10 +948,10 @@ local function calculateSkillUp(player)
         -- [7] = {14300},
         -- [8] = {16700},
         -- [9] = {20000},
-	-- }
+    -- }
 
     if math.random(1, math.floor(digsTable[skillRank][1] / 100)) == 1 then
-	    if realSkill < 1000 then -- Safety check.
+        if realSkill < 1000 then -- Safety check.
             player:setSkillLevel(xi.skill.DIG, realSkill + 1)
 
             -- Digging does not have test items, so increment rank once player hits 10.0, 20.0, .. 100.0
@@ -1090,12 +1091,12 @@ xi.chocoboDig.start = function(player, precheck)
     -- make sure the player can dig before going any further
     -- (and also cause i need a return before core can go any further with this)
     if canDig(player) == true then
-        local roll         = math.random(0, 100)
-        local moon                  = VanadielMoonPhase()
-        local moonmodifier          = 1
-        local skillmodifier = 0.5 + (skillRank / 20) -- 50% at amateur, 55% at recruit, 60% at initiate, and so on, to 100% at exper
-        local zonedug       = '[DIG]ZONE'..player:getZoneID()..'_ITEMS'
-        local zoneDugCurrent        = GetServerVariable(zonedug)
+    local roll         = math.random(0, 100)
+    local moon                  = VanadielMoonPhase()
+    local moonmodifier          = 1
+    local skillmodifier = 0.5 + (skillRank / 20) -- 50% at amateur, 55% at recruit, 60% at initiate, and so on, to 100% at exper
+    local zonedug       = '[DIG]ZONE'..player:getZoneID()..'_ITEMS'
+    local zoneDugCurrent        = GetServerVariable(zonedug)
 
         if moon < 50 then
             moon = 100 - moon -- This converts moon phase percent to a number that represents how FAR the moon phase is from 50
@@ -1146,7 +1147,7 @@ xi.chocoboDig.start = function(player, precheck)
             end
         end
 
-		if skillRank < 10 then -- Safety check. Let's not try to skill-up if at max skill.
+        if skillRank < 10 then -- Safety check. Let's not try to skill-up if at max skill.
             calculateSkillUp(player)
         end
 
