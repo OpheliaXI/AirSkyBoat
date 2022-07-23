@@ -4870,9 +4870,9 @@ namespace battleutils
             }
         }
 
-        uint8 charmerLvl = PCharmer->GetMLevel();
-        uint8 targetLvl  = PTarget->GetMLevel();
-        uint16 charmres  = PTarget->getMod(Mod::CHARMRES) / 100.f;
+        uint8  charmerLvl = PCharmer->GetMLevel();
+        uint8  targetLvl  = PTarget->GetMLevel();
+        uint16 charmres   = PTarget->getMod(Mod::CHARMRES) / 100.f;
 
         // printf("Charmer = %s, Lvl. %u\n", PCharmer->name.c_str(), charmerLvl);
         // printf("Target = %s, Lvl. %u\n", PTarget->name.c_str(), targetLvl);
