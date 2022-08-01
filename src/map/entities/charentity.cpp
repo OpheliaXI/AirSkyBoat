@@ -1852,7 +1852,7 @@ void CCharEntity::OnRaise()
 
         if (mLevel > 0)
         {
-            uint16 expLost = mLevel <= 67 ? (charutils::GetExpNEXTLevel(mLevel) * 8) / 100 : 2400;
+            uint16 expLost         = mLevel <= 67 ? (charutils::GetExpNEXTLevel(mLevel) * 8) / 100 : 2400;
             uint16 xpNeededToLevel = charutils::GetExpNEXTLevel(jobs.job[GetMJob()]) - jobs.exp[GetMJob()];
 
             // Exp is enough to level you and (you're not under a level restriction, or the level restriction is higher than your current main level).
