@@ -266,7 +266,7 @@ CWeaponSkill* CPlayerController::getLastWeaponSkill()
 
 bool CPlayerController::CanUseAbility(uint16 targid, uint16 abilityid)
 {
-    auto PChar = static_cast<CCharEntity*>(POwner);
+    auto PChar    = static_cast<CCharEntity*>(POwner);
     auto PAbility = ability::GetAbility(abilityid);
 
     if (PChar->PRecastContainer->HasRecast(RECAST_ABILITY, PAbility->getRecastId(), PAbility->getRecastTime()))
@@ -307,7 +307,7 @@ bool CPlayerController::CanUseAbility(uint16 targid, uint16 abilityid)
             }
         }
         CBaseEntity* PMsgTarget = PChar;
-        int32 errNo = luautils::OnAbilityCheck(PChar, PTarget, PAbility, &PMsgTarget);
+        int32        errNo      = luautils::OnAbilityCheck(PChar, PTarget, PAbility, &PMsgTarget);
         if (errNo != 0)
         {
             PChar->pushPacket(new CMessageBasicPacket(PChar, PMsgTarget, PAbility->getID(), PAbility->getID(), errNo));

@@ -58,9 +58,9 @@
 
 #include "../ability.h"
 #include "../attack.h"
+#include "../battlefield.h"
 #include "../char_recast_container.h"
 #include "../conquest_system.h"
-#include "../battlefield.h"
 #include "../item_container.h"
 #include "../items/item_furnishing.h"
 #include "../items/item_usable.h"
@@ -1848,8 +1848,6 @@ void CCharEntity::OnRaise()
 
         loc.zone->PushPacket(this, CHAR_INRANGE_SELF, new CActionPacket(action));
 
-        uint8  mLevel  = (m_LevelRestriction != 0 && m_LevelRestriction < GetMLevel()) ? m_LevelRestriction : GetMLevel();
-        uint16 expLost = mLevel <= 67 ? (charutils::GetExpNEXTLevel(mLevel) * 8) / 100 : 2400;
         uint8 mLevel = this->m_raiseLevel;
 
         if (mLevel > 0)
@@ -2057,12 +2055,12 @@ void CCharEntity::Die()
         }
         else
         {
-            this->m_raiseLevel = this->GetMainLevel();
+            this->m_raiseLevel = this->GetMLevel();
         }
     }
     else
     {
-        this->m_raiseLevel = 0
+        this->m_raiseLevel = 0;
     }
 
     luautils::OnPlayerDeath(this);

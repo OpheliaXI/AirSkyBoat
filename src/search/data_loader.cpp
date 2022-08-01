@@ -231,10 +231,10 @@ std::list<SearchEntity*> CDataLoader::GetPlayersList(search_req sr, int* count)
             PPlayer->race     = (uint8)sql->GetIntData(9);
             PPlayer->rank     = (uint8)sql->GetIntData(6 + PPlayer->nation);
 
-            PPlayer->zone        = (PPlayer->zone == 0 ? PPlayer->prevzone : PPlayer->zone);
-            PPlayer->languages   = (uint8)sql->GetUIntData(15);
-            PPlayer->mentor      = sql->GetUIntData(16) & NFLAG_MENTOR;
-            PPlayer->seacom_type = (uint8)sql->GetUIntData(17);
+            PPlayer->zone         = (PPlayer->zone == 0 ? PPlayer->prevzone : PPlayer->zone);
+            PPlayer->languages    = (uint8)sql->GetUIntData(15);
+            PPlayer->mentor       = sql->GetUIntData(16) & NFLAG_MENTOR;
+            PPlayer->seacom_type  = (uint8)sql->GetUIntData(17);
             PPlayer->linkshellid1 = (uint16)sql->GetUIntData(18);
             PPlayer->linkshellid2 = (uint16)sql->GetUIntData(19);
 

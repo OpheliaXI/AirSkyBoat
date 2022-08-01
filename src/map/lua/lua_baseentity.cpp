@@ -4728,11 +4728,11 @@ void CLuaBaseEntity::setModelId(uint16 modelId, sol::object const& slotObj)
 }
 
 /************************************************************************
-*  Function: restoreNpcLook()
-*  Purpose : Restores the NPC's Look back to the original
-*  Example : npc:restoreNpcLook
-*  Notes   : Ignored on all other entity types
-************************************************************************/
+ *  Function: restoreNpcLook()
+ *  Purpose : Restores the NPC's Look back to the original
+ *  Example : npc:restoreNpcLook
+ *  Notes   : Ignored on all other entity types
+ ************************************************************************/
 
 void CLuaBaseEntity::restoreNpcLook()
 {
