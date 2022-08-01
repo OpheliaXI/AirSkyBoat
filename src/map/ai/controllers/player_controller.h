@@ -57,6 +57,8 @@ public:
 
     CWeaponSkill* getLastWeaponSkill();
 
+    bool CanUseAbility(uint16 targid, uint16 abilityid);
+
 protected:
     time_point    m_lastAttackTime{ server_clock::now() };
     time_point    m_lastRangedAttackTime { server_clock::now() };
