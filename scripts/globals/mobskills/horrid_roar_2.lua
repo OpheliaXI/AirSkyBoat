@@ -3,14 +3,14 @@
 -- Dispels all buffs including food. Lowers Enmity.
 -----------------------------------
 require("scripts/globals/mobskills")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/msg")
 -----------------------------------
 local mobskill_object = {}
 
 mobskill_object.onMobSkillCheck = function(target, mob, skill)
-    if (target:isBehind(mob, 48) == true) then
+    if target:isBehind(mob, 96) then
         return 1
     elseif (mob:getAnimationSub() == 1) then
         return 1

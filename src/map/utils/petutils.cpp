@@ -59,10 +59,10 @@ along with this program.  If not, see http://www.gnu.org/licenses/
 
 struct Pet_t
 {
-    uint16    PetID;     // ID in pet_list.sql
-    look_t    look;      // внешний вид
-    string_t  name;      // имя
-    ECOSYSTEM EcoSystem; // эко-система
+    uint16      PetID;     // ID in pet_list.sql
+    look_t      look;      // внешний вид
+    std::string name;      // имя
+    ECOSYSTEM   EcoSystem; // эко-система
 
     uint8 minLevel; // минимально-возможный  уровень
     uint8 maxLevel; // максимально-возможный уровень
@@ -114,19 +114,19 @@ struct Pet_t
     int16 light_sdt;
     int16 dark_sdt;
 
-    int16 fire_res;
-    int16 ice_res;
-    int16 wind_res;
-    int16 earth_res;
-    int16 thunder_res;
-    int16 water_res;
-    int16 light_res;
-    int16 dark_res;
+    int16 fire_meva;
+    int16 ice_meva;
+    int16 wind_meva;
+    int16 earth_meva;
+    int16 thunder_meva;
+    int16 water_meva;
+    int16 light_meva;
+    int16 dark_meva;
 
     Pet_t()
     : EcoSystem(ECOSYSTEM::ECO_ERROR)
     {
-        PetID     = 0;
+        PetID = 0;
 
         minLevel = -1;
         maxLevel = 99;
@@ -162,10 +162,10 @@ struct Pet_t
         hasSpellScript = false;
         spellList      = 0;
 
-        slash_sdt   = 0;
-        pierce_sdt  = 0;
-        hth_sdt     = 0;
-        impact_sdt  = 0;
+        slash_sdt  = 0;
+        pierce_sdt = 0;
+        hth_sdt    = 0;
+        impact_sdt = 0;
 
         fire_sdt    = 0;
         ice_sdt     = 0;
@@ -176,15 +176,14 @@ struct Pet_t
         light_sdt   = 0;
         dark_sdt    = 0;
 
-        fire_res    = 0;
-        ice_res     = 0;
-        wind_res    = 0;
-        earth_res   = 0;
-        thunder_res = 0;
-        water_res   = 0;
-        light_res   = 0;
-        dark_res    = 0;
-
+        fire_meva    = 0;
+        ice_meva     = 0;
+        wind_meva    = 0;
+        earth_meva   = 0;
+        thunder_meva = 0;
+        water_meva   = 0;
+        light_meva   = 0;
+        dark_meva    = 0;
     }
 };
 
@@ -232,7 +231,7 @@ namespace petutils
                 hasSpellScript, spellList, \
                 slash_sdt, pierce_sdt, h2h_sdt, impact_sdt, \
                 fire_sdt, ice_sdt, wind_sdt, earth_sdt, lightning_sdt, water_sdt, light_sdt, dark_sdt, \
-                fire_res, ice_res, wind_res, earth_res, lightning_res, water_res, light_res, dark_res, \
+                fire_meva, ice_meva, wind_meva, earth_meva, lightning_meva, water_meva, light_meva, dark_meva, \
                 cmbDelay, name_prefix, mob_pools.skill_list_id \
                 FROM pet_list, mob_pools, mob_resistances, mob_family_system \
                 WHERE pet_list.poolid = mob_pools.poolid AND mob_resistances.resist_id = mob_pools.resist_id AND mob_pools.familyid = mob_family_system.familyID";
@@ -287,24 +286,34 @@ namespace petutils
                 Pet->hth_sdt    = (uint16)(sql->GetFloatData(30) * 1000);
                 Pet->impact_sdt = (uint16)(sql->GetFloatData(31) * 1000);
 
-                Pet->fire_sdt    = (int16)sql->GetFloatData(32); // Modifier 54, base 10000 stored as signed integer. Positives signify less damage.
-                Pet->ice_sdt     = (int16)sql->GetFloatData(33); // Modifier 55, base 10000 stored as signed integer. Positives signify less damage.
-                Pet->wind_sdt    = (int16)sql->GetFloatData(34); // Modifier 56, base 10000 stored as signed integer. Positives signify less damage.
-                Pet->earth_sdt   = (int16)sql->GetFloatData(35); // Modifier 57, base 10000 stored as signed integer. Positives signify less damage.
-                Pet->thunder_sdt = (int16)sql->GetFloatData(36); // Modifier 58, base 10000 stored as signed integer. Positives signify less damage.
-                Pet->water_sdt   = (int16)sql->GetFloatData(37); // Modifier 59, base 10000 stored as signed integer. Positives signify less damage.
-                Pet->light_sdt   = (int16)sql->GetFloatData(38); // Modifier 60, base 10000 stored as signed integer. Positives signify less damage.
-                Pet->dark_sdt    = (int16)sql->GetFloatData(39); // Modifier 61, base 10000 stored as signed integer. Positives signify less damage.
+                Pet->fire_sdt    = (int16)sql->GetIntData(32); // Modifier 54, base 10000 stored as signed integer. Positives signify less damage.
+                Pet->ice_sdt     = (int16)sql->GetIntData(33); // Modifier 55, base 10000 stored as signed integer. Positives signify less damage.
+                Pet->wind_sdt    = (int16)sql->GetIntData(34); // Modifier 56, base 10000 stored as signed integer. Positives signify less damage.
+                Pet->earth_sdt   = (int16)sql->GetIntData(35); // Modifier 57, base 10000 stored as signed integer. Positives signify less damage.
+                Pet->thunder_sdt = (int16)sql->GetIntData(36); // Modifier 58, base 10000 stored as signed integer. Positives signify less damage.
+                Pet->water_sdt   = (int16)sql->GetIntData(37); // Modifier 59, base 10000 stored as signed integer. Positives signify less damage.
+                Pet->light_sdt   = (int16)sql->GetIntData(38); // Modifier 60, base 10000 stored as signed integer. Positives signify less damage.
+                Pet->dark_sdt    = (int16)sql->GetIntData(39); // Modifier 61, base 10000 stored as signed integer. Positives signify less damage.
 
                 // resistances
-                Pet->fire_res    = (int16)sql->GetIntData(40);
-                Pet->ice_res     = (int16)sql->GetIntData(41);
-                Pet->wind_res    = (int16)sql->GetIntData(42);
-                Pet->earth_res   = (int16)sql->GetIntData(43);
-                Pet->thunder_res = (int16)sql->GetIntData(44);
-                Pet->water_res   = (int16)sql->GetIntData(45);
-                Pet->light_res   = (int16)sql->GetIntData(46);
-                Pet->dark_res    = (int16)sql->GetIntData(47);
+                Pet->fire_meva    = (int16)sql->GetIntData(40);
+                Pet->ice_meva     = (int16)sql->GetIntData(41);
+                Pet->wind_meva    = (int16)sql->GetIntData(42);
+                Pet->earth_meva   = (int16)sql->GetIntData(43);
+                Pet->thunder_meva = (int16)sql->GetIntData(44);
+                Pet->water_meva   = (int16)sql->GetIntData(45);
+                Pet->light_meva   = (int16)sql->GetIntData(46);
+                Pet->dark_meva    = (int16)sql->GetIntData(47);
+                /* Todo
+                Pet->fire_res_rank    = (int16)sql->GetIntData(??);
+                Pet->ice_res_rank     = (int16)sql->GetIntData(??);
+                Pet->wind_res_rank    = (int16)sql->GetIntData(??);
+                Pet->earth_res_rank   = (int16)sql->GetIntData(??);
+                Pet->thunder_res_rank = (int16)sql->GetIntData(??);
+                Pet->water_res_rank   = (int16)sql->GetIntData(??);
+                Pet->light_res_rank   = (int16)sql->GetIntData(??);
+                Pet->dark_res_rank    = (int16)sql->GetIntData(??);
+                */
 
                 Pet->cmbDelay       = (uint16)sql->GetIntData(48);
                 Pet->name_prefix    = (uint8)sql->GetUIntData(49);
@@ -433,6 +442,38 @@ namespace petutils
         }
         return 0;
     }
+    uint16 GetJugMod(CPetEntity* PMob, uint8 lvlMin, uint8 lvlMax, Mod mod, uint16 modMin, uint16 modMax)
+    {
+        uint8  lvl        = PMob->GetMLevel();
+        uint16 statAdjust = 0;
+
+        switch (mod)
+        {
+            case Mod::DEF:
+                statAdjust = 8 + PMob->VIT() / 2;
+                break;
+            case Mod::EVA:
+                statAdjust = PMob->GetSkill(SKILL_EVASION) + PMob->AGI() / 2;
+                break;
+            case Mod::ACC:
+                statAdjust = PMob->DEX() / 2;
+                break;
+            case Mod::ATT:
+                statAdjust = 8 + PMob->STR() / 2;
+                break;
+            default:
+                break;
+        }
+
+        // linear interpolation a + t(b - a)
+        uint8 lvlRange   = lvlMax - lvlMin;
+        uint8 lvlFromMin = lvl - lvlMin;
+        float a          = (float)modMin - (float)statAdjust;
+        float b          = (float)modMax - (float)statAdjust;
+        float t          = (float)lvlFromMin / (float)lvlRange;
+
+        return (a + t * (b - a));
+    }
 
     void LoadJugStats(CPetEntity* PMob, Pet_t* petStats)
     {
@@ -440,6 +481,8 @@ namespace petutils
 
         float growth = 1.0;
         uint8 lvl    = PMob->GetMLevel();
+        uint8 lvlmax = petStats->maxLevel;
+        uint8 lvlmin = petStats->minLevel;
 
         // give hp boost every 10 levels after 25
         // special boosts at 25 and 50
@@ -497,11 +540,6 @@ namespace petutils
         PMob->health.hp = PMob->GetMaxHP();
         PMob->health.mp = PMob->GetMaxMP();
 
-        PMob->setModifier(Mod::DEF, GetJugBase(PMob, petStats->defRank));
-        PMob->setModifier(Mod::EVA, GetJugBase(PMob, petStats->evaRank));
-        PMob->setModifier(Mod::ATT, GetJugBase(PMob, petStats->attRank));
-        PMob->setModifier(Mod::ACC, GetJugBase(PMob, petStats->accRank));
-
         ((CItemWeapon*)PMob->m_Weapons[SLOT_MAIN])->setDamage(GetJugWeaponDamage(PMob));
 
         // reduce weapon delay of MNK
@@ -533,6 +571,216 @@ namespace petutils
         PMob->stats.INT = (uint16)((fINT + mINT) * 0.9f);
         PMob->stats.MND = (uint16)((fMND + mMND) * 0.9f);
         PMob->stats.CHR = (uint16)((fCHR + mCHR) * 0.9f);
+
+        // Set jugs damageType to impact (blunt) damage. All jugs at level 75 cap do impact (blunt) damage. https://ffxiclopedia.fandom.com/wiki/Category:Familiars
+        uint32 id       = PMob->m_PetID;
+        PMob->m_dmgType = DAMAGE_TYPE::IMPACT;
+
+        uint16 def = 0;
+        uint16 eva = 0;
+        uint16 acc = 0;
+        uint16 att = 0;
+
+        // Killer Effect and DEF/EVA/ACC/ATT
+        switch (id)
+        {
+            case 21: // SHEEP FAMILIAR
+                PMob->addModifier(Mod::LIZARD_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 110, 161);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 73, 116);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 78, 124);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 88, 146);
+                break;
+            case 22: // HARE FAMILIAR
+                PMob->addModifier(Mod::LIZARD_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 110, 161);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 73, 116);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 79, 126);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 87, 144);
+                break;
+            case 23: // CRAB FAMILIAR
+                PMob->addModifier(Mod::AMORPH_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 122, 297);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 69, 182);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 76, 198);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 86, 211);
+                break;
+            case 24: // COURIER CARRIE
+                PMob->addModifier(Mod::AMORPH_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 122, 433);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 69, 283);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 76, 305);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 86, 319);
+                break;
+            case 25: // HOMUNCULUS
+                PMob->addModifier(Mod::BEAST_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 98, 378);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 71, 294);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 78, 314);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 84, 316);
+                break;
+            case 26: // FLYTRAP FAMILIAR
+                PMob->addModifier(Mod::BEAST_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 117, 185);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 88, 133);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 93, 144);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 99, 148);
+                break;
+            case 27: // TIGER FAMILIAR
+                PMob->addModifier(Mod::LIZARD_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 115, 181);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 88, 132);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 94, 143);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 108, 162);
+                break;
+            case 28: // FLOWERPOT BILL
+                PMob->addModifier(Mod::BEAST_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 118, 185);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 87, 133);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 95, 144);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 101, 148);
+                break;
+            case 29: // EFT FAMILIAR
+                PMob->addModifier(Mod::VERMIN_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 139, 213);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 104, 148);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 110, 158);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 125, 179);
+                break;
+            case 30: // LIZARD FAMILIAR
+                PMob->addModifier(Mod::VERMIN_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 138, 210);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 104, 148);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 112, 160);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 125, 179);
+                break;
+            case 31: // MAYFLY FAMILIAR
+                PMob->addModifier(Mod::PLANTOID_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 139, 213);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 106, 150);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 110, 158);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 125, 178);
+                break;
+            case 32: // FUNGUAR FAMILIAR
+                PMob->addModifier(Mod::BEAST_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 136, 320);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 106, 242);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 112, 256);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 131, 292);
+                break;
+            case 33: // BEETLE FAMILIAR
+                PMob->addModifier(Mod::PLANTOID_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 185, 270);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 124, 156);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 135, 173);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 148, 186);
+                break;
+            case 34: // ANTLION FAMILIAR
+                PMob->addModifier(Mod::PLANTOID_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 182, 302);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 119, 164);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 126, 175);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 143, 196);
+                break;
+            case 35: // MITE FAMILIAR
+                PMob->addModifier(Mod::PLANTOID_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 170, 237);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 139, 188);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 147, 202);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 201, 321);
+                break;
+            case 36: // LULLABY MELODIA
+                PMob->addModifier(Mod::LIZARD_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 180, 260);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 140, 190);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 147, 202);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 166, 225);
+                break;
+            case 37: // KEENEARED STEFFI
+                PMob->addModifier(Mod::LIZARD_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 176, 250);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 132, 179);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 143, 193);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 157, 211);
+                break;
+            case 38: // FLOWERPOT BEN
+                PMob->addModifier(Mod::BEAST_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 208, 305);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 161, 232);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 175, 248);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 180, 251);
+                break;
+            case 39: // SABER SIRAVARDE
+                PMob->addModifier(Mod::LIZARD_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 207, 307);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 164, 231);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 174, 247);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 189, 267);
+                break;
+            case 40: // COLDBLOOD COMO
+                PMob->addModifier(Mod::VERMIN_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 206, 316);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 166, 242);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 176, 258);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 198, 290);
+                break;
+            case 41: // SHELLBUSTER OROB
+                PMob->addModifier(Mod::PLANTOID_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 209, 320);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 168, 244);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 174, 256);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 196, 288);
+                break;
+            case 42: // VORACIOUS AUDREY
+                PMob->addModifier(Mod::BEAST_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 208, 320);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 167, 242);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 174, 256);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 195, 290);
+                break;
+            case 43: // AMBUSHER ALLIE
+                PMob->addModifier(Mod::VERMIN_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 224, 350);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 175, 268);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 185, 283);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 210, 317);
+                break;
+            case 44: // LIFEDRINKER LARS
+                PMob->addModifier(Mod::PLANTOID_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 258, 354);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 216, 291);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 229, 309);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 307, 478);
+                break;
+            case 45: // PANZER GALAHAD
+                PMob->addModifier(Mod::PLANTOID_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 306, 439);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 209, 283);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 227, 307);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 241, 322);
+                break;
+            case 46: // CHOPSUEY CHUCKY
+                PMob->addModifier(Mod::PLANTOID_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 318, 488);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 218, 293);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 229, 309);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 254, 344);
+                break;
+            case 47: // AMIGO SABOTENDER
+                PMob->addModifier(Mod::BEAST_KILLER, 10);
+                def = GetJugMod(PMob, lvlmin, lvlmax, Mod::DEF, 341, 373);
+                eva = GetJugMod(PMob, lvlmin, lvlmax, Mod::EVA, 284, 296);
+                acc = GetJugMod(PMob, lvlmin, lvlmax, Mod::ACC, 294, 308);
+                att = GetJugMod(PMob, lvlmin, lvlmax, Mod::ATT, 328, 348);
+                break;
+            default:
+                break;
+        }
+
+        PMob->setModifier(Mod::DEF, def);
+        PMob->setModifier(Mod::EVA, eva);
+        PMob->setModifier(Mod::ATT, att);
+        PMob->setModifier(Mod::ACC, acc);
     }
 
     void LoadAutomatonStats(CCharEntity* PMaster, CPetEntity* PPet, Pet_t* petStats)
@@ -696,21 +944,25 @@ namespace petutils
         switch (PAutomaton->getFrame())
         {
             default: // case FRAME_HARLEQUIN:
-                PPet->WorkingSkills.evasion = battleutils::GetMaxSkill(2, PPet->GetMLevel());
-                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(10, PPet->GetMLevel()));
+                PPet->WorkingSkills.evasion = battleutils::GetMaxSkill(2, mlvl > 99 ? 99 : mlvl);
+                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(10, mlvl > 99 ? 99 : mlvl));
+                PPet->m_dmgType = DAMAGE_TYPE::IMPACT;
                 break;
             case FRAME_VALOREDGE:
                 PPet->m_Weapons[SLOT_SUB]->setShieldSize(3);
-                PPet->WorkingSkills.evasion = battleutils::GetMaxSkill(5, PPet->GetMLevel());
-                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(5, PPet->GetMLevel()));
+                PPet->WorkingSkills.evasion = battleutils::GetMaxSkill(5, mlvl > 99 ? 99 : mlvl);
+                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(5, mlvl > 99 ? 99 : mlvl));
+                PPet->m_dmgType = DAMAGE_TYPE::SLASHING;
                 break;
             case FRAME_SHARPSHOT:
-                PPet->WorkingSkills.evasion = battleutils::GetMaxSkill(1, PPet->GetMLevel());
-                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(11, PPet->GetMLevel()));
+                PPet->WorkingSkills.evasion = battleutils::GetMaxSkill(1, mlvl > 99 ? 99 : mlvl);
+                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(11, mlvl > 99 ? 99 : mlvl));
+                PPet->m_dmgType = DAMAGE_TYPE::PIERCING;
                 break;
             case FRAME_STORMWAKER:
-                PPet->WorkingSkills.evasion = battleutils::GetMaxSkill(10, PPet->GetMLevel());
-                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(12, PPet->GetMLevel()));
+                PPet->WorkingSkills.evasion = battleutils::GetMaxSkill(10, mlvl > 99 ? 99 : mlvl);
+                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(12, mlvl > 99 ? 99 : mlvl));
+                PPet->m_dmgType = DAMAGE_TYPE::IMPACT;
                 break;
         }
 
@@ -870,6 +1122,12 @@ namespace petutils
             PPet->addModifier(Mod::MACC, PMaster->getMod(Mod::PET_MACC_MEVA));
             PPet->addModifier(Mod::MEVA, PMaster->getMod(Mod::PET_MACC_MEVA));
         }
+
+        // Set damageType for Avatars
+        if (PPet->m_PetID == PETID_CAIT_SITH || PPet->m_PetID == PETID_FENRIR)
+            PPet->m_dmgType = DAMAGE_TYPE::SLASHING;
+        else
+            PPet->m_dmgType = DAMAGE_TYPE::IMPACT;
     }
 
     /************************************************************************
@@ -999,14 +1257,24 @@ namespace petutils
         PPet->setModifier(Mod::LIGHT_SDT, petData->light_sdt);
         PPet->setModifier(Mod::DARK_SDT, petData->dark_sdt);
 
-        PPet->setModifier(Mod::FIRE_RES, petData->fire_res); // These are stored as signed integers which
-        PPet->setModifier(Mod::ICE_RES, petData->ice_res);   // is directly the modifier starting value.
-        PPet->setModifier(Mod::WIND_RES, petData->wind_res); // Positives signify increased resist chance.
-        PPet->setModifier(Mod::EARTH_RES, petData->earth_res);
-        PPet->setModifier(Mod::THUNDER_RES, petData->thunder_res);
-        PPet->setModifier(Mod::WATER_RES, petData->water_res);
-        PPet->setModifier(Mod::LIGHT_RES, petData->light_res);
-        PPet->setModifier(Mod::DARK_RES, petData->dark_res);
+        PPet->setModifier(Mod::FIRE_MEVA, petData->fire_meva); // These are stored as signed integers which
+        PPet->setModifier(Mod::ICE_MEVA, petData->ice_meva);   // is directly the modifier starting value.
+        PPet->setModifier(Mod::WIND_MEVA, petData->wind_meva); // Positives signify increased resist chance.
+        PPet->setModifier(Mod::EARTH_MEVA, petData->earth_meva);
+        PPet->setModifier(Mod::THUNDER_MEVA, petData->thunder_meva);
+        PPet->setModifier(Mod::WATER_MEVA, petData->water_meva);
+        PPet->setModifier(Mod::LIGHT_MEVA, petData->light_meva);
+        PPet->setModifier(Mod::DARK_MEVA, petData->dark_meva);
+        /* Todo
+        fire_res_rank
+        ice_res_rank
+        wind_res_rank
+        earth_res_rank
+        thunder_res_rank
+        water_res_rank
+        light_res_rank
+        dark_res_rank
+        */
     }
 
     void DetachPet(CBattleEntity* PMaster)
@@ -1118,38 +1386,80 @@ namespace petutils
     int16 PerpetuationCost(uint32 id, uint8 level)
     {
         int16 cost = 0;
-        if (id <= 7)
+
+        // Fire Spirit through Dark Spirit
+        if (id <= PETID_DARKSPIRIT)
         {
-            if (level < 19)
-            {
-                cost = 1;
-            }
-            else if (level < 38)
+            if (level < 5)
             {
                 cost = 2;
             }
-            else if (level < 57)
+            else if (level < 9)
             {
                 cost = 3;
             }
-            else if (level < 75)
+            else if (level < 14)
             {
                 cost = 4;
             }
-            else if (level < 81)
+            else if (level < 18)
             {
                 cost = 5;
             }
-            else if (level < 91)
+            else if (level < 23)
             {
                 cost = 6;
             }
-            else
+            else if (level < 27)
             {
                 cost = 7;
             }
+            else if (level < 32)
+            {
+                cost = 8;
+            }
+            else if (level < 36)
+            {
+                cost = 9;
+            }
+            else if (level < 40)
+            {
+                cost = 10;
+            }
+            else if (level < 46)
+            {
+                cost = 11;
+            }
+            else if (level < 49)
+            {
+                cost = 12;
+            }
+            else if (level < 54)
+            {
+                cost = 13;
+            }
+            else if (level < 58)
+            {
+                cost = 14;
+            }
+            else if (level < 63)
+            {
+                cost = 15;
+            }
+            else if (level < 67)
+            {
+                cost = 16;
+            }
+            else if (level < 72)
+            {
+                cost = 17;
+            }
+            else
+            {
+                cost = 18;
+            }
         }
-        else if (id == 8)
+        else if (id == PETID_CARBUNCLE)
         {
             if (level < 10)
             {
@@ -1183,20 +1493,12 @@ namespace petutils
             {
                 cost = 8;
             }
-            else if (level < 81)
+            else
             {
                 cost = 9;
             }
-            else if (level < 91)
-            {
-                cost = 10;
-            }
-            else
-            {
-                cost = 11;
-            }
         }
-        else if (id == 9)
+        else if (id == PETID_FENRIR)
         {
             if (level < 8)
             {
@@ -1238,20 +1540,13 @@ namespace petutils
             {
                 cost = 10;
             }
-            else if (level < 81)
+            else
             {
                 cost = 11;
             }
-            else if (level < 91)
-            {
-                cost = 12;
-            }
-            else
-            {
-                cost = 13;
-            }
         }
-        else if (id <= 16)
+        // NOTE: This condition covers PETID_IFRIT through the below conditions
+        else if (id <= PETID_DIABOLOS || id == PETID_SIREN)
         {
             if (level < 10)
             {
@@ -1293,17 +1588,9 @@ namespace petutils
             {
                 cost = 12;
             }
-            else if (level < 81)
-            {
-                cost = 13;
-            }
-            else if (level < 91)
-            {
-                cost = 14;
-            }
             else
             {
-                cost = 15;
+                cost = 13;
             }
         }
 
@@ -1325,6 +1612,8 @@ namespace petutils
         if (PPet->objtype == TYPE_MOB && PPet->isCharmed)
         {
             // increase charm duration
+            // set initial charm time
+            PPet->charmTime = server_clock::now();
             // 30 mins - 1-5 mins
             PPet->charmTime += 30min - std::chrono::milliseconds(xirand::GetRandomNumber(300000u));
         }
@@ -1337,12 +1626,6 @@ namespace petutils
         PPet->health.maxhp += boost;
         PPet->health.hp += boost;
         PPet->UpdateHealth();
-
-        // boost stats by 10%
-        PPet->addModifier(Mod::ATTP, (int16)(rate * 100.0f));
-        PPet->addModifier(Mod::ACC, (int16)(rate * 100.0f));
-        PPet->addModifier(Mod::EVA, (int16)(rate * 100.0f));
-        PPet->addModifier(Mod::DEFP, (int16)(rate * 100.0f));
     }
 
     void LoadPet(CBattleEntity* PMaster, uint32 PetID, bool spawningFromZone)
@@ -1367,7 +1650,7 @@ namespace petutils
 
         PET_TYPE petType = PET_TYPE::JUG_PET;
 
-        if (PetID <= PETID_CAIT_SITH)
+        if (PetID <= PETID_CAIT_SITH || PetID == PETID_SIREN)
         {
             petType = PET_TYPE::AVATAR;
         }
@@ -1491,9 +1774,22 @@ namespace petutils
 
         if (PPet->getPetType() == PET_TYPE::AVATAR)
         {
+            uint8 mLvl = PMaster->GetMLevel();
+
             if (PMaster->GetMJob() == JOB_SMN)
             {
-                PPet->SetMLevel(PMaster->GetMLevel());
+                mLvl += PMaster->getMod(Mod::AVATAR_LVL_BONUS);
+
+                if (PetID == PETID_CARBUNCLE)
+                {
+                    mLvl += PMaster->getMod(Mod::CARBUNCLE_LVL_BONUS);
+                }
+                else if (PetID == PETID_CAIT_SITH)
+                {
+                    mLvl += PMaster->getMod(Mod::CAIT_SITH_LVL_BONUS);
+                }
+
+                PPet->SetMLevel(mLvl);
             }
             else if (PMaster->GetSJob() == JOB_SMN)
             {
@@ -1512,19 +1808,19 @@ namespace petutils
 
             PPet->setModifier(Mod::CRIT_DMG_INCREASE, 8); // Avatars have Crit Att Bonus II for +8 crit dmg
 
-            if (PPet->GetMLevel() >= 70)
+            if (mLvl >= 70)
             {
                 PPet->setModifier(Mod::MATT, 32);
             }
-            else if (PPet->GetMLevel() >= 50)
+            else if (mLvl >= 50)
             {
                 PPet->setModifier(Mod::MATT, 28);
             }
-            else if (PPet->GetMLevel() >= 30)
+            else if (mLvl >= 30)
             {
                 PPet->setModifier(Mod::MATT, 24);
             }
-            else if (PPet->GetMLevel() >= 10)
+            else if (mLvl >= 10)
             {
                 PPet->setModifier(Mod::MATT, 20);
             }
@@ -1537,25 +1833,41 @@ namespace petutils
 
             // In a 2014 update SE updated Avatar base damage
             // Based on testing this value appears to be Level now instead of Level * 0.74f
-            uint16 weaponDamage = 1 + PPet->GetMLevel();
+            uint16 weaponDamage = 1 + mLvl;
             if (PetID == PETID_CARBUNCLE || PetID == PETID_CAIT_SITH)
             {
-                weaponDamage = static_cast<uint16>(floor(PPet->GetMLevel() * 0.9f));
+                weaponDamage = floor(weaponDamage * 0.74);
             }
 
             ((CItemWeapon*)PPet->m_Weapons[SLOT_MAIN])->setDamage(weaponDamage);
 
-            // Set B+ weapon skill (assumed capped for level derp)
-            // attack is madly high for avatars (roughly x2)
-            PPet->setModifier(Mod::ATT, 2 * battleutils::GetMaxSkill(SKILL_CLUB, JOB_WHM, PPet->GetMLevel()));
-            PPet->setModifier(Mod::ACC, battleutils::GetMaxSkill(SKILL_CLUB, JOB_WHM, PPet->GetMLevel()));
+            // Set B weapon skill which is consistent with every other mob
+            if (PetID == PETID_FENRIR)
+            {
+                PPet->setModifier(Mod::ATT, 1.3 * battleutils::GetMaxSkill(SKILL_SWORD, JOB_WAR, PPet->GetMLevel())); // Fenrir has been proven to have an additional 30% ATK
+            }
+            else
+            {
+                PPet->setModifier(Mod::ATT, battleutils::GetMaxSkill(SKILL_SWORD, JOB_WAR, PPet->GetMLevel()));
+            }
+
+            PPet->setModifier(Mod::ACC, battleutils::GetMaxSkill(SKILL_SWORD, JOB_WAR, PPet->GetMLevel()));
             // Set E evasion and def
             PPet->setModifier(Mod::EVA, battleutils::GetMaxSkill(SKILL_THROWING, JOB_WHM, PPet->GetMLevel()));
-            PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(SKILL_THROWING, JOB_WHM, PPet->GetMLevel()));
+
+            if (PetID == PETID_DIABOLOS)
+            {
+                PPet->setModifier(Mod::DEF, 1.3 * battleutils::GetMaxSkill(SKILL_THROWING, JOB_WHM, PPet->GetMLevel())); // Diabolos has been proven to have an additional 30% DEF
+            }
+            else
+            {
+                PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(SKILL_THROWING, JOB_WHM, PPet->GetMLevel()));
+            }
+
             // cap all magic skills so they play nice with spell scripts
             for (int i = SKILL_DIVINE_MAGIC; i <= SKILL_BLUE_MAGIC; i++)
             {
-                uint16 maxSkill = battleutils::GetMaxSkill((SKILLTYPE)i, PPet->GetMJob(), PPet->GetMLevel());
+                uint16 maxSkill = battleutils::GetMaxSkill((SKILLTYPE)i, PPet->GetMJob(), mLvl > 99 ? 99 : mLvl);
                 if (maxSkill != 0)
                 {
                     PPet->WorkingSkills.skill[i] = maxSkill;
@@ -1563,7 +1875,7 @@ namespace petutils
                 else // if the mob is WAR/BLM and can cast spell
                 {
                     // set skill as high as main level, so their spells won't get resisted
-                    uint16 maxSubSkill = battleutils::GetMaxSkill((SKILLTYPE)i, PPet->GetSJob(), PPet->GetMLevel());
+                    uint16 maxSubSkill = battleutils::GetMaxSkill((SKILLTYPE)i, PPet->GetSJob(), mLvl > 99 ? 99 : mLvl);
 
                     if (maxSubSkill != 0)
                     {
@@ -1587,7 +1899,7 @@ namespace petutils
                 PPet->addModifier(Mod::BP_DAMAGE, PChar->PJobPoints->GetJobPointValue(JP_BLOOD_PACT_DMG_BONUS) * 3);
             }
 
-            PMaster->addModifier(Mod::AVATAR_PERPETUATION, PerpetuationCost(PetID, PPet->GetMLevel()));
+            PMaster->addModifier(Mod::AVATAR_PERPETUATION, PerpetuationCost(PetID, mLvl));
         }
         else if (PPet->getPetType() == PET_TYPE::JUG_PET)
         {
@@ -1642,7 +1954,7 @@ namespace petutils
             // TEMP: should be MLevel when unsummoned, and PUP level when summoned
             if (PMaster->GetMJob() == JOB_PUP)
             {
-                PPet->SetMLevel(PMaster->GetMLevel());
+                PPet->SetMLevel(PMaster->GetMLevel() + PMaster->getMod(Mod::AUTOMATON_LVL_BONUS));
                 PPet->SetSLevel(PMaster->GetMLevel() / 2); // Todo: SetSLevel() already reduces the level?
             }
             else
@@ -1701,17 +2013,23 @@ namespace petutils
         }
 
         PPet->SetMJob(JOB_DRG);
-        PPet->SetMLevel(PMaster->GetMLevel());
+        // https://www.bg-wiki.com/ffxi/Wyvern_(Dragoon_Pet)#About_the_Wyvern
+        uint8 mLvl = PMaster->GetMLevel();
+        uint8 iLvl = std::clamp(charutils::getMainhandItemLevel(static_cast<CCharEntity*>(PMaster)) - 99, 0, 20);
+
+        PPet->SetMLevel(mLvl + iLvl + PMaster->getMod(Mod::WYVERN_LVL_BONUS));
 
         LoadAvatarStats(PMaster, PPet);                                                                    // follows PC calcs (w/o SJ)
         ((CItemWeapon*)PPet->m_Weapons[SLOT_MAIN])->setDelay((uint16)(floor(1000.0f * (320.0f / 60.0f)))); // 320 delay
-        ((CItemWeapon*)PPet->m_Weapons[SLOT_MAIN])->setDamage((uint16)(1 + floor(PPet->GetMLevel() * 0.9f)));
+        ((CItemWeapon*)PPet->m_Weapons[SLOT_MAIN])->setDamage((uint16)(1 + floor(mLvl * 0.9f)));
         // Set A+ weapon skill
-        PPet->setModifier(Mod::ATT, battleutils::GetMaxSkill(SKILL_GREAT_AXE, JOB_WAR, PPet->GetMLevel()));
-        PPet->setModifier(Mod::ACC, battleutils::GetMaxSkill(SKILL_GREAT_AXE, JOB_WAR, PPet->GetMLevel()));
+        PPet->setModifier(Mod::ATT, battleutils::GetMaxSkill(SKILL_GREAT_AXE, JOB_WAR, mLvl > 99 ? 99 : mLvl));
+        PPet->setModifier(Mod::ACC, battleutils::GetMaxSkill(SKILL_GREAT_AXE, JOB_WAR, mLvl > 99 ? 99 : mLvl));
         // Set D evasion and def
-        PPet->setModifier(Mod::EVA, battleutils::GetMaxSkill(SKILL_HAND_TO_HAND, JOB_WAR, PPet->GetMLevel()));
-        PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(SKILL_HAND_TO_HAND, JOB_WAR, PPet->GetMLevel()));
+        PPet->setModifier(Mod::EVA, battleutils::GetMaxSkill(SKILL_HAND_TO_HAND, JOB_WAR, mLvl > 99 ? 99 : mLvl));
+        PPet->setModifier(Mod::DEF, battleutils::GetMaxSkill(SKILL_HAND_TO_HAND, JOB_WAR, mLvl > 99 ? 99 : mLvl));
+        // Set wyvern damageType to slashing damage. "Wyverns do slashing damage..." https://www.bg-wiki.com/ffxi/Wyvern_(Dragoon_Pet)
+        PPet->m_dmgType = DAMAGE_TYPE::SLASHING;
 
         // Job Point: Wyvern Max HP
         if (PMaster->objtype == TYPE_PC)
@@ -1740,7 +2058,7 @@ namespace petutils
     void FinalizePetStatistics(CBattleEntity* PMaster, CPetEntity* PPet)
     {
         // set C magic evasion
-        PPet->setModifier(Mod::MEVA, battleutils::GetMaxSkill(SKILL_ELEMENTAL_MAGIC, JOB_RDM, PPet->GetMLevel()));
+        PPet->setModifier(Mod::MEVA, battleutils::GetMaxSkill(SKILL_ELEMENTAL_MAGIC, JOB_RDM, PPet->GetMLevel() > 99 ? 99 : PPet->GetMLevel()));
         PPet->health.tp = 0;
         PMaster->applyPetModifiers(PPet);
         PPet->UpdateHealth();

@@ -157,6 +157,10 @@ INSERT INTO `mob_pool_mods` VALUES (3099,23,23,1); -- Parata immune to Sleep, Bi
 INSERT INTO `mob_pool_mods` VALUES (3124,48,434,1);
 INSERT INTO `mob_pool_mods` VALUES (3129,370,50,0);
 INSERT INTO `mob_pool_mods` VALUES (3168,28,10,1);
+INSERT INTO `mob_pool_mods` VALUES (3205,288,25,0);
+INSERT INTO `mob_pool_mods` VALUES (3205,1,250,0);
+INSERT INTO `mob_pool_mods` VALUES (3205,29,30,0);
+INSERT INTO `mob_pool_mods` VALUES (3205,366,25,0);
 INSERT INTO `mob_pool_mods` VALUES (3208,370,20,0);
 INSERT INTO `mob_pool_mods` VALUES (3245,56,1,1);
 INSERT INTO `mob_pool_mods` VALUES (3252,56,1,1);
@@ -167,6 +171,7 @@ INSERT INTO `mob_pool_mods` VALUES (3265,56,1,1);
 INSERT INTO `mob_pool_mods` VALUES (3268,56,1,1);
 INSERT INTO `mob_pool_mods` VALUES (3301,29,100,0); -- (Race Runner) MDEF
 INSERT INTO `mob_pool_mods` VALUES (3379,4,4,1);
+INSERT INTO `mob_pool_mods` VALUES (3426,76,1,1);
 INSERT INTO `mob_pool_mods` VALUES (3540,3,100,1);
 INSERT INTO `mob_pool_mods` VALUES (3549,370,50,0);
 INSERT INTO `mob_pool_mods` VALUES (3598,368,70,0);
@@ -209,7 +214,7 @@ INSERT INTO `mob_pool_mods` VALUES (4204,28,10,1); -- (Variable Hare) 10% XP bon
 INSERT INTO `mob_pool_mods` VALUES (4222,4,4,1);
 INSERT INTO `mob_pool_mods` VALUES (4238,28,5,1); -- (Virulent Peiste) 5% XP bonus
 INSERT INTO `mob_pool_mods` VALUES (4261,29,50,0);
-INSERT INTO `mob_pool_mods` VALUES (4261,370,25,0);
+INSERT INTO `mob_pool_mods` VALUES (4261,370,10,0);
 INSERT INTO `mob_pool_mods` VALUES (4361,288,55,0);
 INSERT INTO `mob_pool_mods` VALUES (4361,5,16,1);
 INSERT INTO `mob_pool_mods` VALUES (4504,4,30,1);
@@ -228,6 +233,10 @@ INSERT INTO `mob_pool_mods` VALUES (5408,58,40,1); -- Maat (PLD) SPECIAL_DELAY: 
 INSERT INTO `mob_pool_mods` VALUES (5409,30,1036,1); -- Maat (DRK) SPECIAL_SKILL: maats_bash
 INSERT INTO `mob_pool_mods` VALUES (5409,33,50,1); -- Maat (DRK) SPECIAL_COOLDOWN: 50 sec
 INSERT INTO `mob_pool_mods` VALUES (5409,58,40,1); -- Maat (DRK) SPECIAL_DELAY: 40 sec
+INSERT INTO `mob_pool_mods` VALUES (5106,288,25,0);
+INSERT INTO `mob_pool_mods` VALUES (5106,1,250,0);
+INSERT INTO `mob_pool_mods` VALUES (5106,29,30,0);
+INSERT INTO `mob_pool_mods` VALUES (5106,366,10,0);
 INSERT INTO `mob_pool_mods` VALUES (7039,34,60,1);
 INSERT INTO `mob_pool_mods` VALUES (7039,4,15,1);
 INSERT INTO `mob_pool_mods` VALUES (7039,5,15,1);

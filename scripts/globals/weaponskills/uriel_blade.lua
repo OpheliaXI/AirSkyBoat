@@ -12,7 +12,7 @@
 -- 4.50      6.00      7.50
 -----------------------------------
 require("scripts/globals/weaponskills")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/magic")
 -----------------------------------
@@ -22,8 +22,8 @@ weaponskill_object.onUseWeaponSkill = function(player, target, wsID, tp, primary
     local params = {}
     params.ftp100 = 4.5 params.ftp200 = 6 params.ftp300 = 7.5
     params.str_wsc = 0.32 params.dex_wsc = 0.0 params.vit_wsc = 0.0 params.agi_wsc = 0.0 params.int_wsc = 0.0 params.mnd_wsc = 0.32 params.chr_wsc = 0.0
-    params.ele = xi.magic.ele.LIGHT
-    params.skill = xi.skill.SWORD
+    params.element = xi.magic.ele.LIGHT
+    params.skillType = xi.skill.SWORD
     params.includemab = true
 
     local damage, criticalHit, tpHits, extraHits = doMagicWeaponskill(player, target, wsID, params, tp, action, primary)
@@ -31,7 +31,6 @@ weaponskill_object.onUseWeaponSkill = function(player, target, wsID, tp, primary
     if (damage > 0 and target:hasStatusEffect(xi.effect.FLASH) == false) then
     target:addStatusEffect(xi.effect.FLASH, 200, 0, 15)
     end
-
 
     return tpHits, extraHits, criticalHit, damage
 end

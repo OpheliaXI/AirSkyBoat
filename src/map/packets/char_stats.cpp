@@ -28,8 +28,8 @@
 
 #include "../entities/charentity.h"
 #include "../modifier.h"
-#include "../utils/charutils.h"
 #include "../roe.h"
+#include "../utils/charutils.h"
 
 CCharStatsPacket::CCharStatsPacket(CCharEntity* PChar)
 {
@@ -57,17 +57,17 @@ CCharStatsPacket::CCharStatsPacket(CCharEntity* PChar)
     ref<uint16>(0x2C) = std::clamp<int16>(PChar->getMod(Mod::MND), -999 + PChar->stats.MND, 999 - PChar->stats.MND);
     ref<uint16>(0x2E) = std::clamp<int16>(PChar->getMod(Mod::CHR), -999 + PChar->stats.CHR, 999 - PChar->stats.CHR);
 
-    ref<uint16>(0x30) = PChar->ATT();
+    ref<uint16>(0x30) = PChar->ATT(SLOT_MAIN);
     ref<uint16>(0x32) = PChar->DEF();
 
-    ref<uint16>(0x34) = PChar->getMod(Mod::FIRE_RES);
-    ref<uint16>(0x36) = PChar->getMod(Mod::ICE_RES);
-    ref<uint16>(0x38) = PChar->getMod(Mod::WIND_RES);
-    ref<uint16>(0x3A) = PChar->getMod(Mod::EARTH_RES);
-    ref<uint16>(0x3C) = PChar->getMod(Mod::THUNDER_RES);
-    ref<uint16>(0x3E) = PChar->getMod(Mod::WATER_RES);
-    ref<uint16>(0x40) = PChar->getMod(Mod::LIGHT_RES);
-    ref<uint16>(0x42) = PChar->getMod(Mod::DARK_RES);
+    ref<uint16>(0x34) = PChar->getMod(Mod::FIRE_MEVA);
+    ref<uint16>(0x36) = PChar->getMod(Mod::ICE_MEVA);
+    ref<uint16>(0x38) = PChar->getMod(Mod::WIND_MEVA);
+    ref<uint16>(0x3A) = PChar->getMod(Mod::EARTH_MEVA);
+    ref<uint16>(0x3C) = PChar->getMod(Mod::THUNDER_MEVA);
+    ref<uint16>(0x3E) = PChar->getMod(Mod::WATER_MEVA);
+    ref<uint16>(0x40) = PChar->getMod(Mod::LIGHT_MEVA);
+    ref<uint16>(0x42) = PChar->getMod(Mod::DARK_MEVA);
 
     ref<uint16>(0x44) = PChar->profile.title;
     ref<uint8>(0x46)  = PChar->profile.rank[PChar->profile.nation];

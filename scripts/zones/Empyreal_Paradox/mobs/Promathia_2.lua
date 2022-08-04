@@ -11,8 +11,9 @@ require("scripts/globals/magic")
 local entity = {}
 
 entity.onMobInitialize = function(mob)
-    mob:addMod(xi.mod.REGAIN, 50)
+    mob:addMod(xi.mod.REGAIN, 75)
     mob:addMod(xi.mod.UFASTCAST, 50)
+    mob:setMobMod(xi.mobMod.MAGIC_COOL, 15)
 end
 
 entity.onMobSpawn = function(mob)
@@ -67,11 +68,11 @@ entity.onSpellPrecast = function(mob, spell)
     end
 end
 
-entity.onMagicCastingCheck = function(mob, target, spell)
+entity.onMobMagicPrepare = function(mob, target, spell)
     if math.random() > 0.75 then
-        return 219
+        return xi.magic.spell.COMET
     else
-        return 218
+        return xi.magic.spell.METEOR
     end
 end
 

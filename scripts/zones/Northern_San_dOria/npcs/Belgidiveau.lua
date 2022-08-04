@@ -4,7 +4,7 @@
 -- Starts and Finishes Quest: Trouble at the Sluice
 -- !pos -98 0 69 231
 -----------------------------------
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/keyitems")
 require("scripts/globals/shop")
 require("scripts/globals/quests")
@@ -17,9 +17,10 @@ end
 
 entity.onTrigger = function(player, npc)
     local troubleAtTheSluice = player:getQuestStatus(xi.quest.log_id.SANDORIA, xi.quest.id.sandoria.TROUBLE_AT_THE_SLUICE)
+    local theRumor = player:getQuestStatus(xi.quest.log_id.SANDORIA, xi.quest.id.sandoria.sandoria.THE_RUMOR)
     local neutralizerKI = player:hasKeyItem(xi.ki.NEUTRALIZER)
 
-    if troubleAtTheSluice == QUEST_AVAILABLE and player:getFameLevel(xi.quest.fame_area.SANDORIA) >= 3 then
+    if theRumor == QUEST_COMPLETED and troubleAtTheSluice == QUEST_AVAILABLE and player:getFameLevel(xi.quest.fame_area.SANDORIA) >= 3 then
         player:startEvent(57)
     elseif troubleAtTheSluice == QUEST_ACCEPTED and neutralizerKI == false then
         player:startEvent(55)

@@ -111,7 +111,7 @@ end
 -----------------------------------
 
 xi.crafting.signupGuild = function(player, nbr)
-    player:addCharVar("Guild_Member", nbr)
+    player:incrementCharVar("Guild_Member", nbr)
 end
 
 -----------------------------------
@@ -164,7 +164,6 @@ local function canGetNewRank(player, skillLvL, craftID)
 
     return canGet
 end
-
 
 -----------------------------------
 -- tradeTestItem Action

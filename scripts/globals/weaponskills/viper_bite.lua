@@ -14,7 +14,7 @@
 -- 1.00      1.00      1.00
 -----------------------------------
 require("scripts/globals/status")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/weaponskills")
 -----------------------------------
 local weaponskill_object = {}
@@ -30,14 +30,14 @@ weaponskill_object.onUseWeaponSkill = function(player, target, wsID, tp, primary
     params.acc100 = 0.0 params.acc200= 0.0 params.acc300= 0.0
     params.atk100 = 2; params.atk200 = 2; params.atk300 = 2
 
-    if (xi.settings.USE_ADOULIN_WEAPON_SKILL_CHANGES == true) then
+    if (xi.settings.main.USE_ADOULIN_WEAPON_SKILL_CHANGES == true) then
         params.dex_wsc = 1.0
     end
 
     local damage, criticalHit, tpHits, extraHits = doPhysicalWeaponskill(player, target, wsID, params, tp, action, primary, taChar)
 
     if (damage > 0 and target:hasStatusEffect(xi.effect.POISON) == false) then
-        local duration = (30 + (tp/1000 * 60)) * applyResistanceAddEffect(player, target, xi.magic.ele.WATER, 0)
+        local duration = (30 + (tp/1000 * 60)) * applyResistanceAddEffect(player, target, xi.magic.ele.WATER, ((player:getMainLvl() / 7.5) * (tp / 1000)))
         target:addStatusEffect(xi.effect.POISON, 3, 0, duration)
     end
     return tpHits, extraHits, criticalHit, damage

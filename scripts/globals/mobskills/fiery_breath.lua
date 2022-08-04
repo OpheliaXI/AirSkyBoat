@@ -7,7 +7,7 @@
 --  Range: Unknown cone
 --  Notes: Used only by Tiamat, Smok and Ildebrann
 -----------------------------------
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/mobskills")
 require("scripts/globals/utils")
@@ -17,7 +17,7 @@ local mobskill_object = {}
 mobskill_object.onMobSkillCheck = function(target, mob, skill)
     if mob:hasStatusEffect(xi.effect.MIGHTY_STRIKES) then
         return 1
-    elseif not target:isInfront(mob, 128) then
+    elseif target:isBehind(mob, 96) then
         return 1
     elseif mob:getAnimationSub() == 1 then
         return 1

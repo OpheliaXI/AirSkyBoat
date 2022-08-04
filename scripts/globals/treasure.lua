@@ -6,7 +6,7 @@
 require("scripts/globals/items")
 require("scripts/globals/keyitems")
 require("scripts/globals/npc_util")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/quests")
 require("scripts/globals/status")
 require("scripts/globals/zone")
@@ -324,7 +324,7 @@ xi.treasure.treasureInfo =
                         test = function(player) return player:getQuestStatus(xi.quest.log_id.BASTOK, xi.quest.id.bastok.A_TEST_OF_TRUE_LOVE) == QUEST_ACCEPTED and not player:hasKeyItem(xi.ki.UN_MOMENT) end,
                         code = function(player)
                             npcUtil.giveKeyItem(player, xi.ki.UN_MOMENT)
-                            player:addCharVar("ATestOfTrueLoveProgress", 1)
+                            player:incrementCharVar("ATestOfTrueLoveProgress", 1)
                         end,
                     },
                 },
@@ -360,7 +360,7 @@ xi.treasure.treasureInfo =
                         test = function(player) return player:getQuestStatus(xi.quest.log_id.BASTOK, xi.quest.id.bastok.A_TEST_OF_TRUE_LOVE) == QUEST_ACCEPTED and not player:hasKeyItem(xi.ki.UN_MOMENT) end,
                         code = function(player)
                             npcUtil.giveKeyItem(player, xi.ki.UN_MOMENT)
-                            player:addCharVar("ATestOfTrueLoveProgress", 1)
+                            player:incrementCharVar("ATestOfTrueLoveProgress", 1)
                         end,
                     },
                 },
@@ -383,7 +383,7 @@ xi.treasure.treasureInfo =
                         test = function(player) return player:getQuestStatus(xi.quest.log_id.BASTOK, xi.quest.id.bastok.A_TEST_OF_TRUE_LOVE) == QUEST_ACCEPTED and not player:hasKeyItem(xi.ki.LEPHEMERE) end,
                         code = function(player)
                             npcUtil.giveKeyItem(player, xi.ki.LEPHEMERE)
-                            player:addCharVar("ATestOfTrueLoveProgress", 1)
+                            player:incrementCharVar("ATestOfTrueLoveProgress", 1)
                         end,
                     },
                 },
@@ -707,7 +707,7 @@ xi.treasure.treasureInfo =
                         test = function(player) return player:getQuestStatus(xi.quest.log_id.BASTOK, xi.quest.id.bastok.A_TEST_OF_TRUE_LOVE) == QUEST_ACCEPTED and not player:hasKeyItem(xi.ki.LANCIENNE) end,
                         code = function(player)
                             npcUtil.giveKeyItem(player, xi.ki.LANCIENNE)
-                            player:addCharVar("ATestOfTrueLoveProgress", 1)
+                            player:incrementCharVar("ATestOfTrueLoveProgress", 1)
                         end,
                     },
                 },
@@ -1524,9 +1524,9 @@ xi.treasure.onTrade = function(player, npc, trade, chestType)
 
     player:confirmTrade()
     if chestType == xi.treasure.type.CHEST then
-        npc:setLocalVar("illusionCooldown", os.time() + math.random(xi.settings.CHEST_MIN_ILLUSION_TIME, xi.settings.CHEST_MAX_ILLUSION_TIME))
+        npc:setLocalVar("illusionCooldown", os.time() + math.random(xi.settings.main.CHEST_MIN_ILLUSION_TIME, xi.settings.main.CHEST_MAX_ILLUSION_TIME))
     else
-        npc:setLocalVar("illusionCooldown", os.time() + math.random(xi.settings.COFFER_MIN_ILLUSION_TIME, xi.settings.COFFER_MAX_ILLUSION_TIME))
+        npc:setLocalVar("illusionCooldown", os.time() + math.random(xi.settings.main.COFFER_MIN_ILLUSION_TIME, xi.settings.main.COFFER_MAX_ILLUSION_TIME))
     end
     moveChest(npc, zoneId, chestType)
 end

@@ -6,7 +6,7 @@
 -- !pos -13 -6 -42 245
 -----------------------------------
 local ID = require("scripts/zones/Lower_Jeuno/IDs")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/items")
 require("scripts/globals/titles")
 require("scripts/globals/keyitems")
@@ -139,7 +139,7 @@ entity.onEventFinish = function(player, csid, option)
         player:completeQuest(xi.quest.log_id.JEUNO, xi.quest.id.jeuno.COLLECT_TARUT_CARDS)
 
     elseif csid == 199 and option == 0 then
-        player:addCharVar("RubbishDay_prog", 1)
+        player:incrementCharVar("RubbishDay_prog", 1)
         player:setCharVar("RubbishDay_day", VanadielDayOfTheYear()) -- new vanadiel day
 
     elseif csid == 198 and option == 0 then

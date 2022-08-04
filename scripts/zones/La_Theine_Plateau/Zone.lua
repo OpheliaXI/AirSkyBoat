@@ -8,7 +8,7 @@ require("scripts/globals/chocobo_digging")
 require("scripts/globals/conquest")
 require("scripts/globals/missions")
 require("scripts/globals/npc_util")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/chocobo")
 require("scripts/globals/quests")
 require("scripts/globals/status")
@@ -44,6 +44,10 @@ end
 
 zone_object.onConquestUpdate = function(zone, updatetype)
     xi.conq.onConquestUpdate(zone, updatetype)
+end
+
+zone_object.onGameDay = function()
+    SetServerVariable("[DIG]ZONE102_ITEMS", 0)
 end
 
 zone_object.onRegionEnter = function(player, region)

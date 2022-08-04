@@ -7,7 +7,7 @@ local ID = require("scripts/zones/Quicksand_Caves/IDs")
 require("scripts/globals/conquest")
 require("scripts/globals/keyitems")
 require("scripts/globals/npc_util")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/treasure")
 require("scripts/globals/status")
 -----------------------------------
@@ -128,6 +128,16 @@ zone_object.onEventUpdate = function(player, csid, option)
 end
 
 zone_object.onEventFinish = function(player, csid, option)
+end
+
+zone_object.onZoneWeatherChange = function(weather)
+    local nuss = GetMobByID(ID.mob.NUSSKNACKER)
+    if
+        not nuss:isSpawned() and os.time() > nuss:getLocalVar("cooldown") and
+        weather == xi.weather.SAND_STORM
+    then
+        DisallowRespawn(nuss:getID(), false)
+    end
 end
 
 return zone_object

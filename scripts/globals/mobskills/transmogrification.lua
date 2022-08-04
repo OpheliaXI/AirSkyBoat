@@ -1,11 +1,11 @@
 -----------------------------------
 --  Transmogrification
 --
---  Description: Activates a shield to absorb all incoming magical damage.
---  Type: Magical
+--  Description: Activates a shield to absorb all incoming physical damage.
+--  Type: Physical
 -----------------------------------
 require("scripts/globals/mobskills")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/msg")
 -----------------------------------

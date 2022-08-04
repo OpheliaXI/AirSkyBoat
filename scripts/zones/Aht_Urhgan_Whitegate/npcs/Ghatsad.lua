@@ -8,7 +8,7 @@ require("scripts/globals/items")
 require("scripts/globals/keyitems")
 require("scripts/globals/npc_util")
 require("scripts/globals/quests")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 -----------------------------------
 local ID = require("scripts/zones/Aht_Urhgan_Whitegate/IDs")
@@ -45,7 +45,7 @@ local headAndFrameItems =
         xi.items.BRASS_SHEET,
         xi.items.WAMOURA_COCOON,
         xi.items.CHUNK_OF_IMPERIAL_CERMET,
-        xi.items.PATAS
+        xi.items.TIGERFANGS
     },
 
     [3] =
@@ -53,12 +53,12 @@ local headAndFrameItems =
         xi.items.ROSEWOOD_LUMBER,
         xi.items.SQUARE_OF_KARAKUL_CLOTH,
         xi.items.SQUARE_OF_KARAKUL_LEATHER,
-        xi.items.HEAVY_CROSSBOW
+        xi.items.REPEATING_CROSSBOW
     },
 
     [4] =
     {
-        xi.items.GOLD_THREAD,
+        xi.items.SPOOL_OF_GOLD_THREAD,
         xi.items.SQUARE_OF_VELVET_CLOTH,
         xi.items.SQUARE_OF_WAMOURA_CLOTH,
         xi.items.BRASS_RING

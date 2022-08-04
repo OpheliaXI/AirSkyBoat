@@ -7,18 +7,18 @@
 --  Range: 30' radial.
 --  Notes: Used only by Jormungand and Isgebind
 -----------------------------------
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/mobskills")
 -----------------------------------
 local mobskill_object = {}
 
 mobskill_object.onMobSkillCheck = function(target, mob, skill)
-    if (mob:hasStatusEffect(xi.effect.BLOOD_WEAPON)) then
+    if mob:hasStatusEffect(xi.effect.BLOOD_WEAPON) then
         return 1
-    elseif (mob:getAnimationSub() == 1) then
+    elseif mob:getAnimationSub() == 1 then
         return 1
-    elseif (target:isBehind(mob, 48) == true) then
+    elseif target:isBehind(mob, 96) then
         return 1
     end
     return 0

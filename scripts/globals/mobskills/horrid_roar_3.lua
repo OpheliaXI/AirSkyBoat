@@ -3,7 +3,7 @@
 -- Dispels all buffs including food. Lowers Enmity.
 -----------------------------------
 require("scripts/globals/mobskills")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/msg")
 -----------------------------------
@@ -16,7 +16,7 @@ mobskill_object.onMobSkillCheck = function(target, mob, skill)
         return 1
     elseif (mob:hasStatusEffect(xi.effect.BLOOD_WEAPON)) then
         return 1
-    elseif (target:isBehind(mob, 48) == true) then
+    elseif target:isBehind(mob, 96) then
         return 1
     elseif (mob:getAnimationSub() == 1) then
         return 1

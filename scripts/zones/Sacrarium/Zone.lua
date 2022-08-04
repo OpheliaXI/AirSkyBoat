@@ -3,7 +3,7 @@
 -----------------------------------
 local ID = require("scripts/zones/Sacrarium/IDs")
 require("scripts/globals/conquest")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/treasure")
 require("scripts/globals/status")
 -----------------------------------
@@ -27,7 +27,7 @@ zone_object.onZoneIn = function(player, prevZone)
 end
 
 zone_object.afterZoneIn = function(player)
-    if xi.settings.ENABLE_COP_ZONE_CAP == 1 then -- ZONE WIDE LEVEL RESTRICTION
+    if xi.settings.main.ENABLE_COP_ZONE_CAP == 1 then -- ZONE WIDE LEVEL RESTRICTION
         player:addStatusEffect(xi.effect.LEVEL_RESTRICTION, 50, 0, 0) -- LV50 cap
     end
 end
@@ -63,6 +63,18 @@ zone_object.onEventUpdate = function(player, csid, option)
 end
 
 zone_object.onEventFinish = function(player, csid, option)
+end
+
+zone_object.onZoneWeatherChange = function(weather)
+    local elel = GetMobByID(ID.mob.ELEL)
+    if
+        not elel:isSpawned() and os.time() > elel:getLocalVar("cooldown") and
+        (weather == xi.weather.GLOOM or weather == xi.weather.DARKNESS) and
+        (VanadielHour() < 4 or VanadielHour() >= 20)
+    then
+        DisallowRespawn(elel:getID(), false)
+        elel:setRespawnTime(math.random(30, 150)) -- pop 30-150 sec after wind weather starts
+    end
 end
 
 return zone_object

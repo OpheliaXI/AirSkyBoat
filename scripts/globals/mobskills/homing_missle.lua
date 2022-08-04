@@ -2,7 +2,7 @@
 -- Homing Missle
 --
 -----------------------------------
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/mobskills")
 -----------------------------------
@@ -19,13 +19,14 @@ mobskill_object.onMobWeaponSkill = function(target, mob, skill)
     local typeEffect = xi.effect.BIND
     local dmg = 0
 
-    xi.mobskills.mobStatusEffectMove(mob, target, typeEffect, 1, 0, 30)
-
     if (targetcurrentHP > hpset) then
         dmg = targetcurrentHP - hpset
     end
 
     target:takeDamage(dmg, mob, xi.attackType.MAGICAL, xi.damageType.ELEMENTAL)
+
+    xi.mobskills.mobStatusEffectMove(mob, target, typeEffect, 1, 0, 30)
+
     return dmg
 end
 

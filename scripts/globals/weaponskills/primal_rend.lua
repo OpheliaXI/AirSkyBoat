@@ -13,7 +13,7 @@
 -----------------------------------
 require("scripts/globals/aftermath")
 require("scripts/globals/magic")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/weaponskills")
 -----------------------------------
@@ -24,11 +24,11 @@ weaponskill_object.onUseWeaponSkill = function(player, target, wsID, tp, primary
     params.ftp100 = 4 params.ftp200 = 4.25 params.ftp300 = 4.75
     params.str_wsc = 0.0 params.dex_wsc = 0.0 params.vit_wsc = 0.0 params.agi_wsc = 0.0 params.int_wsc = 0.0
     params.mnd_wsc = 0.0 params.chr_wsc = 0.3
-    params.ele = xi.magic.ele.LIGHT
-    params.skill = xi.skill.AXE
+    params.element = xi.magic.ele.LIGHT
+    params.skillType = xi.skill.AXE
     params.includemab = true
 
-    if xi.settings.USE_ADOULIN_WEAPON_SKILL_CHANGES then
+    if xi.settings.main.USE_ADOULIN_WEAPON_SKILL_CHANGES then
         params.ftp100 = 3.0625 params.ftp200 = 5.8398 params.ftp300 = 7.5625
         params.dex_wsc = 0.3 params.chr_wsc = 0.6
     end

@@ -1,12 +1,11 @@
 -----------------------------------
 -- Thunderspark M=whatever
 -----------------------------------
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/summon")
 require("scripts/globals/magic")
 require("scripts/globals/mobskills")
-
 -----------------------------------
 local ability_object = {}
 
@@ -15,30 +14,25 @@ ability_object.onAbilityCheck = function(player, target, ability)
 end
 
 ability_object.onPetAbility = function(target, pet, skill)
-    local numhits = 1
-    local accmod = 1
-    local dmgmod = 2
-    local dmgmodsubsequent = 1 -- ??
+    local dINT = math.floor(pet:getStat(xi.mod.INT) - target:getStat(xi.mod.INT))
+    local tp = pet:getTP()
+    local dmgmod = 0
 
-    local totaldamage = 0
-    local damage = AvatarPhysicalMove(pet, target, skill, numhits, accmod, dmgmod, dmgmodsubsequent, xi.mobskills.magicalTpBonus.NO_EFFECT, 1, 2, 3)
-    --get resist multiplier (1x if no resist)
-    local resist = xi.mobskills.applyPlayerResistance(pet, -1, target, pet:getStat(xi.mod.INT)-target:getStat(xi.mod.INT), xi.skill.ELEMENTAL_MAGIC, xi.magic.ele.THUNDER)
-    --get the resisted damage
-    damage.dmg = damage.dmg*resist
-    --add on bonuses (staff/day/weather/jas/mab/etc all go in this function)
-    damage.dmg = xi.mobskills.mobAddBonuses(pet, target, damage.dmg, 1)
-    local tp = skill:getTP()
-    if tp < 1000 then
-        tp = 1000
+    if tp < 1500 then
+        dmgmod = math.floor((21/256) * (tp/100) + (640/256))
+    else
+        dmgmod = math.floor(((21/256) * (1500/100)) + ((5/256) * ((tp-1500)/100) + 640/256))
     end
-    damage.dmg = damage.dmg * tp / 1000
-    totaldamage = AvatarFinalAdjustments(damage.dmg, pet, skill, target, xi.attackType.MAGICAL, xi.damageType.LIGHTNING, numhits)
-    target:addStatusEffect(xi.effect.PARALYSIS, 15, 0, 60)
-    target:takeDamage(totaldamage, pet, xi.attackType.MAGICAL, xi.damageType.LIGHTNING)
-    target:updateEnmityFromDamage(pet, totaldamage)
 
-    return totaldamage
+    local damage = pet:getMainLvl() + 2 + (0.30 * pet:getStat(xi.mod.INT)) + (dINT * 1.5)
+    damage = xi.mobskills.mobMagicalMove(pet, target, skill, damage, xi.magic.ele.LIGHTNING, dmgmod, xi.mobskills.magicalTpBonus.NO_EFFECT, 0)
+    damage = xi.mobskills.mobAddBonuses(pet, target, damage.dmg, xi.magic.ele.LIGHTNING)
+    damage = xi.summon.avatarFinalAdjustments(damage, pet, skill, target, xi.attackType.MAGICAL, xi.damageType.LIGHTNING, 1)
+    target:addStatusEffect(xi.effect.PARALYSIS, 15, 0, 60)
+    target:takeDamage(damage, pet, xi.attackType.MAGICAL, xi.damageType.LIGHTNING)
+    target:updateEnmityFromDamage(pet, damage)
+
+    return damage
 end
 
 return ability_object

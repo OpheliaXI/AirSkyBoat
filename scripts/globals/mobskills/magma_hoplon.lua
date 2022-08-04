@@ -4,13 +4,17 @@
 -- Stoneskin portion cannot be removed with dispel.
 -----------------------------------
 require("scripts/globals/mobskills")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 -----------------------------------
 local mobskill_object = {}
 
 mobskill_object.onMobSkillCheck = function(target, mob, skill)
-    return 0
+    if mob:hasStatusEffect(xi.effect.STONESKIN) then
+        return 1
+    else
+        return 0
+    end
 end
 
 mobskill_object.onMobWeaponSkill = function(target, mob, skill)

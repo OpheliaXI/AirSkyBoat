@@ -36,7 +36,7 @@ zone_object.onZoneIn = function(player, prevZone)
     end
 
     -- AMK06/AMK07
-    if xi.settings.ENABLE_AMK == 1 then
+    if xi.settings.main.ENABLE_AMK == 1 then
         xi.amk.helpers.tryRandomlyPlaceDiggingLocation(player)
     end
 
@@ -45,6 +45,10 @@ end
 
 zone_object.onConquestUpdate = function(zone, updatetype)
     xi.conq.onConquestUpdate(zone, updatetype)
+end
+
+zone_object.onGameDay = function()
+    SetServerVariable("[DIG]ZONE117_ITEMS", 0)
 end
 
 zone_object.onRegionEnter = function(player, region)
@@ -64,12 +68,14 @@ local function isHabrokWeather(weather)
 end
 
 zone_object.onZoneWeatherChange = function(weather)
-    local habrok = GetMobByID(ID.mob.HABROK)
+    if xi.settings.main.ENABLE_WOTG == 1 then
+        local habrok = GetMobByID(ID.mob.HABROK)
 
-    if habrok:isSpawned() and not isHabrokWeather(weather) then
-        DespawnMob(ID.mob.HABROK)
-    elseif not habrok:isSpawned() and isHabrokWeather(weather) and os.time() > habrok:getLocalVar("pop") then
-        SpawnMob(ID.mob.HABROK)
+        if habrok:isSpawned() and not isHabrokWeather(weather) then
+            DespawnMob(ID.mob.HABROK)
+        elseif not habrok:isSpawned() and isHabrokWeather(weather) and os.time() > habrok:getLocalVar("pop") then
+            SpawnMob(ID.mob.HABROK)
+        end
     end
 end
 

@@ -195,7 +195,7 @@ int32 CCommandHandler::call(sol::state& lua, CCharEntity* PChar, const int8* com
         filename = (*maybeRegisteredCommand).second;
     }
 
-    auto loadResult = lua.safe_script_file(filename, &sol::script_pass_on_error);
+    auto loadResult = lua.safe_script_file(filename);
     if (!loadResult.valid())
     {
         sol::error err = loadResult;
@@ -232,7 +232,7 @@ int32 CCommandHandler::call(sol::state& lua, CCharEntity* PChar, const int8* com
     }
     else
     {
-        if (map_config.audit_gm_cmd <= permission && map_config.audit_gm_cmd > 0)
+        if (settings::get<uint8>("map.AUDIT_GM_CMD") <= permission && settings::get<uint8>("map.AUDIT_GM_CMD") > 0)
         {
             std::string name       = PChar->name;
             std::string cmdlinestr = autotranslate::replaceBytes((const char*)commandline);
@@ -328,4 +328,6 @@ int32 CCommandHandler::call(sol::state& lua, CCharEntity* PChar, const int8* com
 void CCommandHandler::registerCommand(std::string const& commandName, std::string const& path)
 {
     registeredCommands[commandName] = path;
+    lua["cmdprops"]                 = sol::lua_nil;
+    lua["onTrigger"]                = sol::lua_nil;
 }

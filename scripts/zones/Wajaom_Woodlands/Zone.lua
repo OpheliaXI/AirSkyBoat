@@ -3,7 +3,7 @@
 -----------------------------------
 local ID = require("scripts/zones/Wajaom_Woodlands/IDs")
 require("scripts/globals/chocobo_digging")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/missions")
 require("scripts/globals/chocobo")
 require("scripts/globals/quests")
@@ -30,6 +30,10 @@ zone_object.onZoneIn = function(player, prevZone)
     end
 
     return cs
+end
+
+zone_object.onGameDay = function()
+    SetServerVariable("[DIG]ZONE51_ITEMS", 0)
 end
 
 zone_object.onRegionEnter = function(player, region)

@@ -10,10 +10,11 @@ require("scripts/globals/missions")
 require("scripts/globals/npc_util")
 require("scripts/globals/quests")
 require("scripts/globals/roe")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/zone")
 require("scripts/missions/amk/helpers")
+require("scripts/missions/wotg/helpers")
 -----------------------------------
 
 xi = xi or {}
@@ -39,8 +40,8 @@ local helmInfo =
         id = "HARVESTING",
         animation = xi.emote.HARVESTING,
         mod = xi.mod.HARVESTING_RESULT,
-        settingRate = xi.settings.HARVESTING_RATE,
-        settingBreak = xi.settings.HARVESTING_BREAK_CHANCE,
+        settingRate = xi.settings.main.HARVESTING_RATE,
+        settingBreak = xi.settings.main.HARVESTING_BREAK_CHANCE,
         message = "HARVESTING_IS_POSSIBLE_HERE",
         tool = 1020,
         zone =
@@ -331,8 +332,8 @@ local helmInfo =
         id = "EXCAVATION",
         animation = xi.emote.EXCAVATION,
         mod = nil,
-        settingRate = xi.settings.EXCAVATION_RATE,
-        settingBreak = xi.settings.EXCAVATION_BREAK_CHANCE,
+        settingRate = xi.settings.main.EXCAVATION_RATE,
+        settingBreak = xi.settings.main.EXCAVATION_BREAK_CHANCE,
         message = "MINING_IS_POSSIBLE_HERE",
         tool = 605,
         zone =
@@ -347,7 +348,7 @@ local helmInfo =
                     {1220, 17396}, -- Little Worm
                     { 720,   897}, -- Scorpion Claw
                     { 720,   896}, -- Scorpion Shell
-                    { 420,  2503}, -- Antlion Jaw
+                    { 420,  1616}, -- Antlion Jaw
                     { 420,  1236}, -- Cactus Stems
                     { 420,  1473}, -- High Quality Scorpion Shell
                     { 420,   769}, -- Colored Rock
@@ -355,10 +356,13 @@ local helmInfo =
                 points =
                 {
                     {-559.629, -13.114,  -88.864},
+                    {-560.463, -12.160,  -50.494},
+                    {-539.946,  -4.582,   -9.527},
                     {-328.481, -12.000,   68.200},
-                    {-343.760, -12.232,   66.061},
+                    {-351.612, -11.919,   51.848},
                     {-375.399,  -3.264,  356.472},
                     {-378.857,  -3.720,  342.842},
+                    {-400.509,  -3.356,  343.399},
                 },
             },
             [xi.zone.TAHRONGI_CANYON] =
@@ -465,8 +469,8 @@ local helmInfo =
         id = "LOGGING",
         animation = xi.emote.LOGGING,
         mod = xi.mod.LOGGING_RESULT,
-        settingRate = xi.settings.LOGGING_RATE,
-        settingBreak = xi.settings.LOGGING_BREAK_CHANCE,
+        settingRate = xi.settings.main.LOGGING_RATE,
+        settingBreak = xi.settings.main.LOGGING_BREAK_CHANCE,
         message = "LOGGING_IS_POSSIBLE_HERE",
         tool = 1021,
         zone =
@@ -892,8 +896,8 @@ local helmInfo =
         id = "MINING",
         animation = xi.emote.EXCAVATION,
         mod = xi.mod.MINING_RESULT,
-        settingRate = xi.settings.MINING_RATE,
-        settingBreak = xi.settings.MINING_BREAK_CHANCE,
+        settingRate = xi.settings.main.MINING_RATE,
+        settingBreak = xi.settings.main.MINING_BREAK_CHANCE,
         message = "MINING_IS_POSSIBLE_HERE",
         tool = 605,
         zone =
@@ -1168,7 +1172,7 @@ local helmInfo =
                     { 900,   644}, -- Mythril Ore
                     { 900,   736}, -- Silver Ore
                     { 800,   640}, -- Copper Ore
-                    { 100,   738}, -- Platium Ore
+                    { 100,   738}, -- Platinum Ore
                 },
                 points =
                 {
@@ -1276,17 +1280,17 @@ local helmInfo =
             {
                 drops =
                 {
-                    {3260,   768}, -- Flint Stone
-                    {1520,   643}, -- Iron Ore
-                    { 430,  1108}, -- Sulfur
-                    { 650, 17316}, -- Bomb Arm
-                    { 870,   928}, -- Bomb Ash
-                    {1300,  1155}, -- Iron Sand
-                    { 250,   646}, -- Adaman Ore
-                    { 600,   645}, -- Darksteel Ore
-                    {1520,  2126}, -- Orpiment
+                    {2710,   768}, -- Flint Stone
+                    {1440,   643}, -- Iron Ore
+                    { 510,  1108}, -- Sulfur
+                    { 110, 17316}, -- Bomb Arm
+                    { 680,   928}, -- Bomb Ash
+                    { 510,  1155}, -- Iron Sand
+                    { 170,   646}, -- Adaman Ore
+                    { 250,   645}, -- Darksteel Ore
+                    {1610,  2126}, -- Orpiment
                     { 100,   739}, -- Orichalcum Ore
-                    { 220,   769}, -- Colored Rock
+                    { 340,   769}, -- Colored Rock
                 },
                 points =
                 {
@@ -1423,8 +1427,16 @@ xi.helm.onTrade = function(player, npc, trade, helmType, csid, func)
         local broke = doesToolBreak(player, info) and 1 or 0
         local full  = (player:getFreeSlotsCount() == 0) and 1 or 0
 
-        if csid then player:startEvent(csid, item, broke, full) end
+        if csid then
+            player:startEvent(csid, item, broke, full)
+        end
+
         player:sendEmote(npc, info.animation, xi.emoteMode.MOTION)
+
+        -- WotG : The Price of Valor; Success does not award an item, but only KI.
+        if xi.wotg.helpers.helmTrade(player, helmType, broke) then
+            return
+        end
 
         -- success! reward item and decrement number of remaining uses on the point
         if item ~= 0 and full == 0 then
@@ -1451,7 +1463,7 @@ xi.helm.onTrade = function(player, npc, trade, helmType, csid, func)
         end
 
         -- AMK04
-        if xi.settings.ENABLE_AMK == 1 then
+        if xi.settings.main.ENABLE_AMK == 1 then
             xi.amk.helpers.helmTrade(player, helmType, broke)
         end
 

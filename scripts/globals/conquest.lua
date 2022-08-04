@@ -7,9 +7,12 @@ require("scripts/globals/teleports")
 require("scripts/globals/keyitems")
 require("scripts/globals/missions")
 require("scripts/globals/npc_util")
-require("scripts/settings/main")
+require("scripts/globals/settings")
+require("scripts/globals/garrison")
 require("scripts/globals/status")
 require("scripts/globals/zone")
+require("scripts/globals/items")
+require("scripts/globals/extravaganza")
 -----------------------------------
 
 xi = xi or {}
@@ -86,9 +89,9 @@ local outposts =
 local function hasOutpost(player, region)
     local hasOP = player:hasTeleport(player:getNation(), region + 5)
     if not hasOP then
-        if xi.settings.UNLOCK_OUTPOST_WARPS == 2 then
+        if xi.settings.main.UNLOCK_OUTPOST_WARPS == 2 then
             hasOP = true
-        elseif xi.settings.UNLOCK_OUTPOST_WARPS == 1 then
+        elseif xi.settings.main.UNLOCK_OUTPOST_WARPS == 1 then
             hasOP = region <= xi.region.ELSHIMOUPLANDS
         end
     end
@@ -125,9 +128,9 @@ end
 local function getAllowedTeleports(player, nation)
     local allowedTeleports = 0x3F40001F -- All outposts set (0 indicates allowed)
 
-    if xi.settings.UNLOCK_OUTPOST_WARPS == 2 then
+    if xi.settings.main.UNLOCK_OUTPOST_WARPS == 2 then
         return allowedTeleports -- Allow all outposts
-    elseif xi.settings.UNLOCK_OUTPOST_WARPS == 1 then
+    elseif xi.settings.main.UNLOCK_OUTPOST_WARPS == 1 then
         return 0x3FE0001F -- Allow all outposts except for Tulia and Tavnazia
     end
     for region = xi.region.RONFAURE, xi.region.TAVNAZIANARCH do
@@ -628,6 +631,7 @@ local function getArg1(player, guardNation, guardType)
     local pNation = player:getNation()
     local output = 0
     local signet = 0
+    local cipher = xi.extravaganza.campaignActive() * 20 * 65536
 
     if guardNation == xi.nation.WINDURST then
         output = 33
@@ -660,7 +664,7 @@ local function getArg1(player, guardNation, guardType)
         output = 1808
     end
 
-    return output
+    return output + cipher
 end
 
 -- arg6 encodes a player's rank and nationality:
@@ -685,7 +689,11 @@ local overseerInvCommon =
     [32934] = {cp =  1000, lvl =  1, item = 15762},             -- empress_band
     [32935] = {cp =  2000, lvl =  1, item = 15763},             -- emperor_band
     [32936] = {cp =  5000, lvl =  1, item = 28540},             -- warp_ring
-    [32941] = {cp = 20000, lvl =  1, item =  6380, rank = 10},  -- refined_chair_set
+    [32937] = {cp =  1000, lvl =  1, item = xi.items.CIPHER_OF_TENZENS_ALTER_EGO},
+    [32938] = {cp =  1000, lvl =  1, item = xi.items.CIPHER_OF_RAHALS_ALTER_EGO},
+    [32939] = {cp =  1000, lvl =  1, item = xi.items.CIPHER_OF_KUKKIS_ALTER_EGO},
+    [32941] = {cp = 20000, lvl =  1, item = xi.items.REFINED_CHAIR_SET, rank = 10},
+    [32942] = {cp =  1000, lvl =  1, item = xi.items.CIPHER_OF_MAKKIS_ALTER_EGO},
 }
 
 local overseerInvNation =
@@ -887,7 +895,7 @@ local function canBuyExpRing(player, item)
     local text = zones[player:getZoneID()].text
 
     -- check exp ring count
-    if xi.settings.ALLOW_MULTIPLE_EXP_RINGS ~= 1 then
+    if xi.settings.main.ALLOW_MULTIPLE_EXP_RINGS ~= 1 then
         for i = 15761, 15763 do
             if player:hasItem(i) then
                 player:messageSpecial(text.CONQUEST + 60, 0, 0, item) -- You do not meet the requirements to purchase the <item>.
@@ -898,7 +906,7 @@ local function canBuyExpRing(player, item)
     end
 
     -- one exp ring per conquest tally
-    if xi.settings.BYPASS_EXP_RING_ONE_PER_WEEK ~= 1 and player:getCharVar("CONQUEST_RING_RECHARGE") > os.time() then
+    if xi.settings.main.BYPASS_EXP_RING_ONE_PER_WEEK ~= 1 and player:getCharVar("CONQUEST_RING_RECHARGE") > os.time() then
         player:messageSpecial(text.CONQUEST + 60, 0, 0, item)
         player:messageSpecial(text.CONQUEST + 50, 0, 0, item)
         return false
@@ -987,6 +995,14 @@ end
 -----------------------------------
 
 xi.conquest.overseerOnTrade = function(player, npc, trade, guardNation, guardType)
+    -- Garrison Trade
+    if
+        guardType == xi.conq.guard.OUTPOST and
+        (trade:getItemId() >= 1528 and trade:getItemId() <= 1543)
+    then
+        xi.garrison.onTrade(player, npc, trade, guardNation)
+    end
+
     if player:getNation() == guardNation or guardNation == xi.nation.OTHER then
         local item = trade:getItemId()
         local tradeConfirmed = false
@@ -1031,7 +1047,7 @@ xi.conquest.overseerOnTrade = function(player, npc, trade, guardNation, guardTyp
 
         -- RECHARGE EXP RING
         if not tradeConfirmed and expRings[item] and npcUtil.tradeHas(trade, item) then
-            if xi.settings.BYPASS_EXP_RING_ONE_PER_WEEK == 1 or player:getCharVar("CONQUEST_RING_RECHARGE") < os.time() then
+            if xi.settings.main.BYPASS_EXP_RING_ONE_PER_WEEK == 1 or player:getCharVar("CONQUEST_RING_RECHARGE") < os.time() then
                 local ring = expRings[item]
 
                 if player:getCP() >= ring.cp then
@@ -1054,9 +1070,13 @@ end
 
 xi.conquest.overseerOnTrigger = function(player, npc, guardNation, guardType, guardEvent, guardRegion)
     local pNation = player:getNation()
-
+    local zoneId = npc:getZoneID()
+    local status = player:getCharVar(string.format("[GARRISON]Status_%s", zoneId))
+    -- GARRISON
+    if status > 0 then
+        xi.garrison.onTrigger(player, npc)
     -- SUPPLY RUNS
-    if pNation == guardNation and areSuppliesRotten(player, npc, guardType) then
+    elseif pNation == guardNation and areSuppliesRotten(player, npc, guardType) then
         -- do nothing else
     elseif pNation == guardNation and guardType >= xi.conquest.guard.OUTPOST and canDeliverSupplies(player, guardNation, guardEvent, guardRegion) then
         -- do nothing else

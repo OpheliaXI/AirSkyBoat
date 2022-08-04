@@ -39,15 +39,18 @@ zones[xi.zone.YUHTUNGA_JUNGLE] =
         ALREADY_HAVE_ALL_FRAGS      = 7686,  -- You have obtained all of the fragments. You must hurry to the ruins of the ancient shrine!
         FOUND_ALL_FRAGS             = 7687,  -- You have obtained <keyitem>! You now have all 8 fragments of light!
         ZILART_MONUMENT             = 7688,  -- It is an ancient Zilart monument.
+        THE_OPO_OPOS_ATTACK         = 7704,  -- The Opo-opos attack!
         LOGGING_IS_POSSIBLE_HERE    = 7705,  -- Logging is possible here if you have <item>.
         HARVESTING_IS_POSSIBLE_HERE = 7712,  -- Harvesting is possible here if you have <item>.
         SOMETHING_IS_BURIED_HERE    = 7766,  -- It looks like something is buried here. If you had <item> you could dig it up.
+        GARRISON_BASE               = 7793,  -- Hm? What is this? %? How do I know this is not some [San d'Orian/Bastokan/Windurstian] trick?
         SWARM_APPEARED              = 7839,  -- A swarm has appeared!
         PLAYER_OBTAINS_ITEM         = 7879,  -- <name> obtains <item>!
         UNABLE_TO_OBTAIN_ITEM       = 7880,  -- You were unable to obtain the item.
         PLAYER_OBTAINS_TEMP_ITEM    = 7881,  -- <name> obtains the temporary item: <item>!
         ALREADY_POSSESS_TEMP        = 7882,  -- You already possess that temporary item.
         NO_COMBINATION              = 7887,  -- You were unable to enter a combination.
+        TOUCHING_RED_JEWEL          = 7690,  -- Touching the red jewel has infuriated the Opo-opos of the forest. It would be wise to leave immediately.
         REGIME_REGISTERED           = 10065, -- New training regime registered!
         COMMON_SENSE_SURVIVAL       = 12059, -- It appears that you have arrived at a new survival guide provided by the Adventurers' Mutual Aid Network. Common sense dictates that you should now be able to teleport here from similar tomes throughout the world.
     },
@@ -64,10 +67,11 @@ zones[xi.zone.YUHTUNGA_JUNGLE] =
         VOLUPTUOUS_VILMA        = 17281358,
         NASUS_OFFSET            = 17281491,
         SIREN                   = 17281547,
+        BAYAWAK                 = 17281388,
+        MEWW_THE_TURTLERIDER    = 17281281,
     },
     npc =
     {
-        CASKET_BASE           = 17281559,
         BLUE_RAFFLESIA_OFFSET = 17281586,
         TUNING_OUT_QM         = 17281590, -- qm2 in npc_list
         OVERSEER_BASE         = 17281600, -- Zorchorevi_RK in npc_list

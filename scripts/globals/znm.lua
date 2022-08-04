@@ -9,7 +9,7 @@
 -----------------------------------
 require("scripts/globals/items")
 require("scripts/globals/keyitems")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/magic")
 require("scripts/globals/msg")
@@ -197,7 +197,7 @@ xi.znm.sanraku.onEventFinish = function(player, csid, option)
     if csid == 910 then
         player:confirmTrade()
         player:setCharVar("[ZNM][Sanraku]TradingDay", VanadielUniqueDay())
-        player:addCharVar("[ZNM][Sanraku]TradedPlates", 1)
+        player:incrementCharVar("[ZNM][Sanraku]TradedPlates", 1)
 
         local zeniValue = player:getLocalVar("[ZNM][Sanraku]SoulPlateValue")
         player:setLocalVar("[ZNM][Sanraku]SoulPlateValue", 0)

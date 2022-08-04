@@ -7,7 +7,7 @@
 --  Range:
 --  Notes:
 ---------------------------------------------1
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/mobskills")
 -----------------------------------
@@ -19,8 +19,9 @@ end
 
 mobskill_object.onMobWeaponSkill = function(target, mob, skill)
     local typeEffect = xi.effect.STUN
+    local duration = math.random(8, 14)
 
-    xi.mobskills.mobStatusEffectMove(mob, target, typeEffect, 1, 0, 4)
+    xi.mobskills.mobStatusEffectMove(mob, target, typeEffect, 1, 0, duration)
 
     local dmgmod = 1
     local info = xi.mobskills.mobMagicalMove(mob, target, skill, mob:getWeaponDmg()*2, xi.magic.ele.THUNDER, dmgmod, xi.mobskills.magicalTpBonus.NO_EFFECT)

@@ -9,7 +9,7 @@
 local ID = require("scripts/zones/The_Garden_of_RuHmet/IDs")
 mixins = {require("scripts/mixins/job_special")}
 require("scripts/globals/mobskills")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 -----------------------------------
 local entity = {}
@@ -61,8 +61,10 @@ entity.onMobInitialize = function(IxAernDrkMob)
         else
             -- death
             mob:setMobMod(xi.mobMod.NO_DROPS, 0)
-            -- DespawnMob(QnAernA)
-            -- DespawnMob(QnAernB)
+            for i = mob:getID() + 1, mob:getID() + 2 do
+                local aernPet = GetMobByID(i)
+                DespawnMob(aernPet)
+            end
         end
     end)
 

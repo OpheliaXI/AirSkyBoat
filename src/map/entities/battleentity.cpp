@@ -43,6 +43,7 @@
 #include "../roe.h"
 #include "../status_effect_container.h"
 #include "../utils/battleutils.h"
+#include "../utils/mobutils.h"
 #include "../utils/petutils.h"
 #include "../utils/puppetutils.h"
 #include "../weapon_skill.h"
@@ -82,12 +83,15 @@ CBattleEntity::CBattleEntity()
     m_modStat[Mod::PIERCE_SDT] = 1000;
     m_modStat[Mod::HTH_SDT]    = 1000;
     m_modStat[Mod::IMPACT_SDT] = 1000;
+    m_modStat[Mod::MOVE]       = 0;
 
     m_Immunity   = 0;
     isCharmed    = false;
     m_unkillable = false;
+    m_dmgType    = DAMAGE_TYPE::NONE;
 
     m_DeathType = DEATH_TYPE::NONE;
+
     BattleHistory.lastHitTaken_atkType = ATTACK_TYPE::NONE;
 }
 
@@ -225,14 +229,27 @@ int32 CBattleEntity::GetMaxMP() const
 uint8 CBattleEntity::GetSpeed()
 {
     // Note: retail treats mounted speed as double what it actually is! 40 is in fact retail accurate!
-    int16 startingSpeed = isMounted() ? 40 + map_config.mount_speed_mod : speed;
+    int16 startingSpeed = isMounted() ? 40 + settings::get<int8>("map.MOUNT_SPEED_MOD") : speed;
     // Mod::MOVE (169)
     // Mod::MOUNT_MOVE (972)
     Mod mod = isMounted() ? Mod::MOUNT_MOVE : Mod::MOVE;
 
-    float modAmount     = (100.0f + static_cast<float>(getMod(mod))) / 100.0f;
+    float modAmount = (100.0f + static_cast<float>(getMod(mod))) / 100.0f;
+    // Cap unmounted movement speed increase to 25%
+    if (mod == Mod::MOVE)
+    {
+        if (StatusEffectContainer->GetStatusEffect(EFFECT_FLEE))
+        {
+            modAmount = std::clamp(modAmount, 0.0f, 2.0f);
+        }
+        else
+        {
+            modAmount = std::clamp(modAmount, 0.0f, 1.25f);
+        }
+    }
+
     float modifiedSpeed = static_cast<float>(startingSpeed) * modAmount;
-    uint8 outputSpeed   = static_cast<uint8>(modifiedSpeed);
+    uint8 outputSpeed   = static_cast<uint8>(modifiedSpeed < 0 ? 0 : modifiedSpeed);
 
     return std::clamp<uint8>(outputSpeed, std::numeric_limits<uint8>::min(), std::numeric_limits<uint8>::max());
 }
@@ -398,6 +415,13 @@ uint16 CBattleEntity::GetRangedWeaponDmg()
 {
     TracyZoneScoped;
     uint16 dmg = 0;
+
+    if (objtype == TYPE_MOB)
+    {
+        auto* PMob = static_cast<CMobEntity*>(this);
+        return (mobutils::GetWeaponDamage(PMob, SLOT_RANGED) + getMod(Mod::RANGED_DMG_RATING)) * battleutils::GetRangedDistanceCorrection(this, distance(this->loc.p, this->GetBattleTarget()->loc.p));
+    }
+
     if (auto* weapon = dynamic_cast<CItemWeapon*>(m_Weapons[SLOT_RANGED]))
     {
         if ((weapon->getReqLvl() > GetMLevel()) && objtype == TYPE_PC)
@@ -476,21 +500,21 @@ int16 CBattleEntity::addTP(int16 tp)
 
         if (objtype == TYPE_PC)
         {
-            TPMulti = map_config.player_tp_multiplier;
+            TPMulti = settings::get<float>("map.PLAYER_TP_MULTIPLIER");
         }
         else if (objtype == TYPE_MOB)
         {
-            TPMulti = map_config.mob_tp_multiplier;
+            TPMulti = settings::get<float>("map.MOB_TP_MULTIPLIER");
         }
         else if (objtype == TYPE_PET)
         {
             if (static_cast<CPetEntity*>(this)->getPetType() != PET_TYPE::AUTOMATON || !this->PMaster)
             {
-                TPMulti = map_config.mob_tp_multiplier * 3;
+                TPMulti = settings::get<float>("map.MOB_TP_MULTIPLIER") * 3;
             }
             else
             {
-                TPMulti = map_config.player_tp_multiplier;
+                TPMulti = settings::get<float>("map.PLAYER_TP_MULTIPLIER");
             }
         }
 
@@ -558,6 +582,12 @@ int32 CBattleEntity::addMP(int32 mp)
 int32 CBattleEntity::takeDamage(int32 amount, CBattleEntity* attacker /* = nullptr*/, ATTACK_TYPE attackType /* = ATTACK_NONE*/,
                                 DAMAGE_TYPE damageType /* = DAMAGE_NONE*/)
 {
+    if (this->GetLocalVar("DAMAGE_NULL") != 0)
+    {
+        amount %= 2;
+        this->SetLocalVar("DAMAGE_DEALT", amount);
+    }
+
     TracyZoneScoped;
     PLastAttacker                             = attacker;
     this->BattleHistory.lastHitTaken_atkType  = attackType;
@@ -627,23 +657,23 @@ uint16 CBattleEntity::CHR()
     return std::clamp(stats.CHR + m_modStat[Mod::CHR], 0, 999);
 }
 
-uint16 CBattleEntity::ATT()
+uint16 CBattleEntity::ATT(uint16 slot)
 {
     TracyZoneScoped;
     // TODO: consider which weapon!
     int32 ATT    = 8 + m_modStat[Mod::ATT];
-    auto* weapon = dynamic_cast<CItemWeapon*>(m_Weapons[SLOT_MAIN]);
+    auto* weapon = dynamic_cast<CItemWeapon*>(m_Weapons[slot]);
     if (weapon && weapon->isTwoHanded())
     {
         ATT += (STR() * 3) / 4;
     }
-    else if (weapon && weapon->isHandToHand())
-    {
-        ATT += (STR() * 5) / 8;
-    }
+    // else if (weapon && weapon->isHandToHand())
+    //{
+    //      ATT += (STR() * 5) / 8;
+    //  }
     else
     {
-        ATT += (STR() * 3) / 4;
+        ATT += STR() / 2;
     }
 
     if (this->StatusEffectContainer->HasStatusEffect(EFFECT_ENDARK))
@@ -671,7 +701,22 @@ uint16 CBattleEntity::ATT()
     return ATT + (ATT * m_modStat[Mod::ATTP] / 100) + std::min<int16>((ATT * m_modStat[Mod::FOOD_ATTP] / 100), m_modStat[Mod::FOOD_ATT_CAP]);
 }
 
-uint16 CBattleEntity::RATT(uint8 skill, uint16 bonusSkill)
+uint16 CBattleEntity::RATT(uint8 skill, float distance, uint16 bonusSkill)
+{
+    auto* PWeakness = StatusEffectContainer->GetStatusEffect(EFFECT_WEAKNESS);
+    if (PWeakness && PWeakness->GetPower() >= 2)
+    {
+        return 0;
+    }
+    int32 ATT = 8 + GetSkill(skill) + bonusSkill + m_modStat[Mod::RATT] + battleutils::GetRangedAttackBonuses(this) + STR() / 2;
+    if ((this->objtype == TYPE_PC) || (this->objtype == TYPE_PET && this->PMaster->objtype == TYPE_PC && ((CPetEntity*)this)->getPetType() == PET_TYPE::AUTOMATON)) // PC or PC Automaton
+    {
+        ATT = int32((float)ATT * battleutils::GetRangedDistanceCorrection(this, distance));
+    }
+    return ATT + (ATT * m_modStat[Mod::RATTP] / 100) + std::min<int16>((ATT * m_modStat[Mod::FOOD_RATTP] / 100), m_modStat[Mod::FOOD_RATT_CAP]);
+}
+
+uint16 CBattleEntity::GetBaseRATT(uint8 skill, uint16 bonusSkill)
 {
     auto* PWeakness = StatusEffectContainer->GetStatusEffect(EFFECT_WEAKNESS);
     if (PWeakness && PWeakness->GetPower() >= 2)
@@ -682,7 +727,7 @@ uint16 CBattleEntity::RATT(uint8 skill, uint16 bonusSkill)
     return ATT + (ATT * m_modStat[Mod::RATTP] / 100) + std::min<int16>((ATT * m_modStat[Mod::FOOD_RATTP] / 100), m_modStat[Mod::FOOD_RATT_CAP]);
 }
 
-uint16 CBattleEntity::RACC(uint8 skill, uint16 bonusSkill)
+uint16 CBattleEntity::RACC(uint8 skill, float distance, uint16 bonusSkill)
 {
     TracyZoneScoped;
     auto* PWeakness = StatusEffectContainer->GetStatusEffect(EFFECT_WEAKNESS);
@@ -698,7 +743,34 @@ uint16 CBattleEntity::RACC(uint8 skill, uint16 bonusSkill)
     }
     acc += getMod(Mod::RACC);
     acc += battleutils::GetRangedAccuracyBonuses(this);
-    acc += (AGI() * 3) / 4;
+    acc += AGI() / 2;
+    if ((this->objtype == TYPE_PC) || (this->objtype == TYPE_PET && this->PMaster->objtype == TYPE_PC && ((CPetEntity*)this)->getPetType() == PET_TYPE::AUTOMATON)) // PC or PC Automaton
+    {
+        if (!this->StatusEffectContainer->HasStatusEffect(EFFECT_SHARPSHOT))
+        {
+            acc = int32((float)acc * battleutils::GetRangedDistanceCorrection(this, distance));
+        }
+    }
+    return acc + std::min<int16>(((100 + getMod(Mod::FOOD_RACCP) * acc) / 100), getMod(Mod::FOOD_RACC_CAP));
+}
+
+uint16 CBattleEntity::GetBaseRACC(uint8 skill, uint16 bonusSkill)
+{
+    TracyZoneScoped;
+    auto* PWeakness = StatusEffectContainer->GetStatusEffect(EFFECT_WEAKNESS);
+    if (PWeakness && PWeakness->GetPower() >= 2)
+    {
+        return 0;
+    }
+    int    skill_level = GetSkill(skill) + bonusSkill;
+    uint16 acc         = skill_level;
+    if (skill_level > 200)
+    {
+        acc = (uint16)(200 + (skill_level - 200) * 0.9);
+    }
+    acc += getMod(Mod::RACC);
+    acc += battleutils::GetRangedAccuracyBonuses(this);
+    acc += AGI() / 2;
     return acc + std::min<int16>(((100 + getMod(Mod::FOOD_RACCP) * acc) / 100), getMod(Mod::FOOD_RACC_CAP));
 }
 
@@ -753,7 +825,7 @@ uint16 CBattleEntity::ACC(uint8 attackNumber, uint8 offsetAccuracy)
         }
         else
         {
-            ACC += (int16)(DEX() * 0.75);
+            ACC += (int16)(DEX() * 0.5);
         }
         ACC         = (ACC + m_modStat[Mod::ACC] + offsetAccuracy);
         auto* PChar = dynamic_cast<CCharEntity*>(this);
@@ -863,7 +935,7 @@ void CBattleEntity::SetMLevel(uint8 mlvl)
 void CBattleEntity::SetSLevel(uint8 slvl)
 {
     TracyZoneScoped;
-    if (!map_config.include_mob_sj && (this->objtype == TYPE_MOB && this->objtype != TYPE_PET))
+    if (!settings::get<bool>("map.INCLUDE_MOB_SJ") && this->objtype == TYPE_MOB && this->objtype != TYPE_PET)
     {
         // Technically, we shouldn't be assuming mobs even have a ratio they must adhere to.
         // But there is no place in the DB to set subLV right now.
@@ -871,9 +943,10 @@ void CBattleEntity::SetSLevel(uint8 slvl)
     }
     else
     {
-        switch (map_config.subjob_ratio)
+        auto ratio = settings::get<uint8>("map.SUBJOB_RATIO");
+        switch (ratio)
         {
-            case 0: // no SJ...Where is your Altana now?
+            case 0: // no SJ
                 m_slvl = 0;
                 break;
             case 1: // 1/2 (75/37, 99/49)
@@ -886,7 +959,7 @@ void CBattleEntity::SetSLevel(uint8 slvl)
                 m_slvl = (slvl > m_mlvl ? (m_mlvl == 1 ? 1 : m_mlvl) : slvl);
                 break;
             default: // Error
-                ShowError("Error setting subjob level: Invalid ratio '%s' check your map.conf file!", map_config.subjob_ratio);
+                ShowError("Error setting subjob level: Invalid ratio '%s' check your settings file!", ratio);
                 break;
         }
     }
@@ -915,7 +988,15 @@ uint8 CBattleEntity::GetDeathType()
 
 void CBattleEntity::addModifier(Mod type, int16 amount)
 {
-    m_modStat[type] += amount;
+    if (type == Mod::MOVE)
+    {
+        m_MSNonItemValues.push_back(amount);
+        m_modStat[type] = CalculateMSFromSources();
+    }
+    else
+    {
+        m_modStat[type] += amount;
+    }
 }
 
 /************************************************************************
@@ -929,8 +1010,55 @@ void CBattleEntity::addModifiers(std::vector<CModifier>* modList)
     TracyZoneScoped;
     for (auto modifier : *modList)
     {
-        m_modStat[modifier.getModID()] += modifier.getModAmount();
+        if (modifier.getModID() == Mod::MOVE)
+        {
+            addModifier(modifier.getModID(), modifier.getModAmount()); // Calculations in addModifier already, don't duplicate
+        }
+        else
+        {
+            m_modStat[modifier.getModID()] += modifier.getModAmount();
+        }
     }
+}
+
+int16 CBattleEntity::CalculateMSFromSources()
+{
+    int16 highestItemPositiveValue = 0;
+    int16 highestNonItemPositve    = 0;
+    int16 totalItemReducedValue    = 0;
+    int16 totalNonItemReducedValue = 0;
+
+    for (uint16 i = 0; i < m_MSNonItemValues.size(); i++)
+    {
+        if (m_MSNonItemValues[i] >= 0)
+        {
+            if (m_MSNonItemValues[i] > highestNonItemPositve)
+            {
+                highestNonItemPositve = m_MSNonItemValues[i];
+            }
+        }
+        else
+        {
+            totalNonItemReducedValue += m_MSNonItemValues[i];
+        }
+    }
+
+    for (uint16 i = 0; i < m_MSItemValues.size(); i++)
+    {
+        if (m_MSItemValues[i] >= 0)
+        {
+            if (m_MSItemValues[i] > highestItemPositiveValue)
+            {
+                highestItemPositiveValue = m_MSItemValues[i];
+            }
+        }
+        else
+        {
+            totalItemReducedValue += m_MSItemValues[i];
+        }
+    }
+
+    return (highestItemPositiveValue + totalItemReducedValue) + (highestNonItemPositve + totalNonItemReducedValue);
 }
 
 void CBattleEntity::addEquipModifiers(std::vector<CModifier>* modList, uint8 itemLevel, uint8 slotid)
@@ -953,7 +1081,16 @@ void CBattleEntity::addEquipModifiers(std::vector<CModifier>* modList, uint8 ite
             }
             else
             {
-                m_modStat[i.getModID()] += i.getModAmount();
+                // Add item with movement speed and prevent stacking
+                if (i.getModID() == Mod::MOVE)
+                {
+                    m_MSItemValues.push_back(i.getModAmount());
+                    m_modStat[i.getModID()] = CalculateMSFromSources();
+                }
+                else
+                {
+                    m_modStat[i.getModID()] += i.getModAmount();
+                }
             }
         }
     }
@@ -1048,7 +1185,23 @@ void CBattleEntity::setModifiers(std::vector<CModifier>* modList)
 
 void CBattleEntity::delModifier(Mod type, int16 amount)
 {
-    m_modStat[type] -= amount;
+    if (type == Mod::MOVE)
+    {
+        for (uint16 x = 0; x < m_MSNonItemValues.size(); x++)
+        {
+            if (m_MSNonItemValues[x] == amount)
+            {
+                m_MSNonItemValues.erase(m_MSNonItemValues.begin() + x);
+                break;
+            }
+        }
+
+        m_modStat[type] = CalculateMSFromSources();
+    }
+    else
+    {
+        m_modStat[type] -= amount;
+    }
 }
 
 void CBattleEntity::saveModifiers()
@@ -1072,7 +1225,14 @@ void CBattleEntity::delModifiers(std::vector<CModifier>* modList)
     TracyZoneScoped;
     for (auto& i : *modList)
     {
-        m_modStat[i.getModID()] -= i.getModAmount();
+        if (i.getModID() == Mod::MOVE)
+        {
+            delModifier(i.getModID(), i.getModAmount()); // Calculations in delModifier already, don't duplicate
+        }
+        else
+        {
+            m_modStat[i.getModID()] -= i.getModAmount();
+        }
     }
 }
 
@@ -1096,7 +1256,24 @@ void CBattleEntity::delEquipModifiers(std::vector<CModifier>* modList, uint8 ite
             }
             else
             {
-                m_modStat[i.getModID()] -= i.getModAmount();
+                // Remove item with movement speed and prevent stacking
+                if (i.getModID() == Mod::MOVE)
+                {
+                    for (uint16 x = 0; x < m_MSItemValues.size(); x++)
+                    {
+                        if (m_MSItemValues[x] == i.getModAmount())
+                        {
+                            m_MSItemValues.erase(m_MSItemValues.begin() + x);
+                            break;
+                        }
+                    }
+
+                    m_modStat[i.getModID()] = CalculateMSFromSources();
+                }
+                else
+                {
+                    m_modStat[i.getModID()] -= i.getModAmount();
+                }
             }
         }
     }
@@ -1498,8 +1675,8 @@ void CBattleEntity::OnCastFinished(CMagicState& state, action_t& action)
 
             if (damage < 0)
             {
-                msg = MSGBASIC_MAGIC_RECOVERS_HP;
-                actionTarget.param = static_cast<uint16>(std::clamp(damage * -1 , 0, PTarget->GetMaxHP() - PTarget->health.hp));
+                msg                = MSGBASIC_MAGIC_RECOVERS_HP;
+                actionTarget.param = static_cast<uint16>(std::clamp(damage * -1, 0, PTarget->GetMaxHP() - PTarget->health.hp));
             }
             else
             {
@@ -1618,6 +1795,15 @@ void CBattleEntity::OnWeaponSkillFinished(CWeaponSkillState& state, action_t& ac
 bool CBattleEntity::CanAttack(CBattleEntity* PTarget, std::unique_ptr<CBasicPacket>& errMsg)
 {
     TracyZoneScoped;
+
+    if (this->PMaster != nullptr && this->PMaster->objtype == TYPE_PC && !static_cast<CCharEntity*>(this->PMaster)->IsMobOwner(PTarget))
+    {
+        errMsg = std::make_unique<CMessageBasicPacket>(this, PTarget, 0, 0, MSGBASIC_ALREADY_CLAIMED);
+
+        PAI->Disengage();
+        return false;
+    }
+
     return !((distance(loc.p, PTarget->loc.p) - PTarget->m_ModelRadius) > GetMeleeRange() || !PAI->GetController()->IsAutoAttackEnabled());
 }
 
@@ -1646,6 +1832,15 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
 {
     TracyZoneScoped;
     auto* PTarget = static_cast<CBattleEntity*>(state.GetTarget());
+
+    if (this->objtype == TYPE_MOB)
+    {
+        auto* PMob = dynamic_cast<CMobEntity*>(this);
+        if (charutils::CheckMob(PTarget->m_mlvl, PMob->m_maxLevel) == EMobDifficulty::TooWeak)
+        {
+            PMob->m_ExpPenalty = ((PMob->m_ExpPenalty + lua["xi"]["settings"]["main"]["PL_PENALTY"].get<uint16>()) < UINT16_MAX - 1) ? PMob->m_ExpPenalty + lua["xi"]["settings"]["main"]["PL_PENALTY"].get<uint16>() : UINT16_MAX - 1;
+        }
+    }
 
     if (PTarget->objtype == TYPE_PC)
     {
@@ -1714,7 +1909,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
             else if (attack.IsParried())
             {
                 actionTarget.messageID  = 70;
-                actionTarget.reaction   = REACTION::PARRY;
+                actionTarget.reaction   = REACTION::PARRY | REACTION::HIT;
                 actionTarget.speceffect = SPECEFFECT::NONE;
                 battleutils::HandleTacticalParry(PTarget);
                 battleutils::HandleIssekiganEnmityBonus(PTarget, this);
@@ -1764,7 +1959,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
                             csJpAtkBonus = 1 + ((static_cast<float>(targetDex) / 100) * csJpModifier);
                         }
 
-                        float DamageRatio = battleutils::GetDamageRatio(PTarget, this, attack.IsCritical(), csJpAtkBonus);
+                        float DamageRatio = battleutils::GetDamageRatio(PTarget, this, attack.IsCritical(), csJpAtkBonus, SLOT_MAIN, 0, attack.IsGuarded());
                         auto  damage      = (int32)((PTarget->GetMainWeaponDmg() + naturalh2hDMG + battleutils::GetFSTR(PTarget, this, SLOT_MAIN)) * DamageRatio);
 
                         actionTarget.spikesParam =
@@ -1787,12 +1982,13 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
             else
             {
                 // Set this attack's critical flag.
-                attack.SetCritical(xirand::GetRandomNumber(100) < battleutils::GetCritHitRate(this, PTarget, !attack.IsFirstSwing()));
+                attack.SetCritical(xirand::GetRandomNumber(100) < battleutils::GetCritHitRate(this, PTarget, !attack.IsFirstSwing()), SLOT_MAIN, attack.IsGuarded());
+
+                actionTarget.reaction = REACTION::HIT;
 
                 // Critical hit.
                 if (attack.IsCritical())
                 {
-                    actionTarget.reaction   = REACTION::HIT;
                     actionTarget.speceffect = SPECEFFECT::CRITICAL_HIT;
                     actionTarget.messageID  = attack.GetAttackType() == PHYSICAL_ATTACK_TYPE::DAKEN ? 353 : 67;
 
@@ -1808,7 +2004,6 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
                 // Not critical hit.
                 else
                 {
-                    actionTarget.reaction   = REACTION::HIT;
                     actionTarget.speceffect = SPECEFFECT::HIT;
                     actionTarget.messageID  = attack.GetAttackType() == PHYSICAL_ATTACK_TYPE::DAKEN ? 352 : 1;
                 }
@@ -1816,7 +2011,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
                 // Guarded. TODO: Stuff guards that shouldn't.
                 if (attack.IsGuarded())
                 {
-                    actionTarget.reaction = REACTION::GUARD;
+                    actionTarget.reaction |= REACTION::GUARDED;
                     battleutils::HandleTacticalGuard(PTarget);
                 }
 
@@ -1829,12 +2024,12 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
                 }
 
                 // Process damage.
-                attack.ProcessDamage();
+                attack.ProcessDamage(attack.IsCritical(), attack.IsGuarded());
 
                 // Try shield block
                 if (attack.IsBlocked())
                 {
-                    actionTarget.reaction = REACTION::BLOCK;
+                    actionTarget.reaction |= REACTION::BLOCK;
                 }
 
                 actionTarget.param =
@@ -1849,7 +2044,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
 
             if (PTarget->objtype == TYPE_PC)
             {
-                if (attack.IsGuarded() || ((map_config.newstyle_skillups & NEWSTYLE_GUARD) > 0))
+                if (attack.IsGuarded() || !settings::get<bool>("map.GUARD_OLD_SKILLUP_STYLE"))
                 {
                     if (battleutils::GetGuardRate(this, PTarget) > 0)
                     {
@@ -1857,7 +2052,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
                     }
                 }
 
-                if (attack.IsBlocked() || ((map_config.newstyle_skillups & NEWSTYLE_BLOCK) > 0))
+                if (attack.IsBlocked() || !settings::get<bool>("map.BLOCK_OLD_SKILLUP_STYLE"))
                 {
                     if (battleutils::GetBlockRate(this, PTarget) > 0)
                     {
@@ -1865,7 +2060,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
                     }
                 }
 
-                if (attack.IsParried() || ((map_config.newstyle_skillups & NEWSTYLE_PARRY) > 0))
+                if (attack.IsParried() || !settings::get<bool>("map.PARRY_OLD_SKILLUP_STYLE"))
                 {
                     if (battleutils::GetParryRate(this, PTarget) > 0)
                     {
@@ -1890,23 +2085,27 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
             battleutils::HandleAfflatusMiseryAccuracyBonus(this);
         }
 
-        if (actionTarget.reaction != REACTION::HIT && actionTarget.reaction != REACTION::BLOCK && actionTarget.reaction != REACTION::GUARD && actionTarget.messageID != MSGBASIC_SHADOW_ABSORB)
+        // If we didn't hit at all, set param to 0 if we didn't blink any shadows.
+        if ((actionTarget.reaction & REACTION::HIT) == REACTION::NONE && actionTarget.messageID != MSGBASIC_SHADOW_ABSORB)
         {
             actionTarget.param = 0;
         }
 
-        if (actionTarget.reaction != REACTION::EVADE && actionTarget.reaction != REACTION::PARRY && attack.GetAttackType() != PHYSICAL_ATTACK_TYPE::DAKEN)
+        // if we did hit, run enspell/spike routines as long as this isn't a Daken swing
+        if ((actionTarget.reaction & REACTION::MISS) == REACTION::NONE && attack.GetAttackType() != PHYSICAL_ATTACK_TYPE::DAKEN)
         {
             battleutils::HandleEnspell(this, PTarget, &actionTarget, attack.IsFirstSwing(), (CItemWeapon*)this->m_Weapons[attack.GetWeaponSlot()],
                                        attack.GetDamage());
             battleutils::HandleSpikesDamage(this, PTarget, &actionTarget, attack.GetDamage());
         }
 
-        if (actionTarget.reaction == REACTION::PARRY && PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_BATTUTA))
+        // if we parried, run battuta check if applicable
+        if ((actionTarget.reaction & REACTION::PARRY) == REACTION::PARRY && PTarget->StatusEffectContainer->HasStatusEffect(EFFECT_BATTUTA))
         {
             battleutils::HandleParrySpikesDamage(this, PTarget, &actionTarget, attack.GetDamage());
         }
 
+        // set recoil if we hit and dealt non-zero damage
         if (actionTarget.speceffect == SPECEFFECT::HIT && actionTarget.param > 0)
         {
             actionTarget.speceffect = SPECEFFECT::RECOIL;
@@ -1919,7 +2118,7 @@ bool CBattleEntity::OnAttack(CAttackState& state, action_t& action)
             uint16 zanshinChance = this->getMod(Mod::ZANSHIN) + battleutils::GetMeritValue(this, MERIT_ZASHIN_ATTACK_RATE);
             zanshinChance        = std::clamp<uint16>(zanshinChance, 0, 100);
             // zanshin may only proc on a missed/guarded/countered swing or as SAM main with hasso up (at 25% of the base zanshin rate)
-            if (((actionTarget.reaction == REACTION::EVADE || actionTarget.reaction == REACTION::GUARD || actionTarget.spikesEffect == SUBEFFECT_COUNTER) &&
+            if ((((actionTarget.reaction & REACTION::MISS) != REACTION::NONE || (actionTarget.reaction & REACTION::GUARDED) != REACTION::NONE || actionTarget.spikesEffect == SUBEFFECT_COUNTER) &&
                  xirand::GetRandomNumber(100) < zanshinChance) ||
                 (GetMJob() == JOB_SAM && this->StatusEffectContainer->HasStatusEffect(EFFECT_HASSO) && xirand::GetRandomNumber(100) < (zanshinChance / 4)))
             {

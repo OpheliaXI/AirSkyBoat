@@ -12,7 +12,7 @@
 -----------------------------------
 require("scripts/globals/magic")
 require("scripts/globals/status")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/weaponskills")
 -----------------------------------
 local weaponskill_object = {}
@@ -24,15 +24,15 @@ weaponskill_object.onUseWeaponSkill = function(player, target, wsID, tp, primary
     params.vit_wsc = 0.0 params.agi_wsc = 0.0
     params.int_wsc = 0.0 params.mnd_wsc = 0.4
     params.chr_wsc = 0.0
-    params.skill = xi.skill.STAFF
+    params.skillType = xi.skill.STAFF
     params.includemab = true
     -- 50/50 shot of being light or dark
-    params.ele = xi.magic.ele.LIGHT
+    params.element = xi.magic.ele.LIGHT
     if math.random() < 0.5 then
-        params.ele = xi.magic.ele.DARK
+        params.element = xi.magic.ele.DARK
     end
 
-    if xi.settings.USE_ADOULIN_WEAPON_SKILL_CHANGES == true then
+    if xi.settings.main.USE_ADOULIN_WEAPON_SKILL_CHANGES == true then
         params.str_wsc = 0.4 params.mnd_wsc = 0.4
     end
 

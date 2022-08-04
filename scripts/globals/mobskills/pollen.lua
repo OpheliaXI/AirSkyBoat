@@ -5,7 +5,7 @@
 --
 -----------------------------------
 require("scripts/globals/mobskills")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/msg")
 -----------------------------------
@@ -20,6 +20,11 @@ mobskill_object.onMobWeaponSkill = function(target, mob, skill)
 
     if (potency == 0) then
         potency = 12
+    end
+
+    if mob:getPool() == 385 then
+        potency = 25
+        potency = potency - math.random(0,5)
     end
 
     potency = potency - math.random(0, potency/4)

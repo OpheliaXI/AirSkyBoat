@@ -1,11 +1,10 @@
 -----------------------------------
 -- Aerial Blast
 -----------------------------------
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/magic")
 require("scripts/globals/mobskills")
-
 -----------------------------------
 local ability_object = {}
 
@@ -22,12 +21,10 @@ end
 ability_object.onPetAbility = function(target, pet, skill, master)
     local dINT = math.floor(pet:getStat(xi.mod.INT) - target:getStat(xi.mod.INT))
 
-    local level = pet:getMainLvl()
-    local damage = 48 + (level * 8)
-    damage = damage + (dINT * 1.5)
-    damage = xi.mobskills.mobMagicalMove(pet, target, skill, damage, xi.magic.ele.WIND, 1, xi.mobskills.magicalTpBonus.NO_EFFECT, 0)
+    local damage = pet:getMainLvl() + 2 + (0.30 * pet:getStat(xi.mod.INT)) + (dINT * 1.5)
+    damage = xi.mobskills.mobMagicalMove(pet, target, skill, damage, xi.magic.ele.WIND, 9, xi.mobskills.magicalTpBonus.NO_EFFECT, 0)
     damage = xi.mobskills.mobAddBonuses(pet, target, damage.dmg, xi.magic.ele.WIND)
-    damage = AvatarFinalAdjustments(damage, pet, skill, target, xi.attackType.MAGICAL, xi.damageType.WIND, 1)
+    damage = xi.summon.avatarFinalAdjustments(damage, pet, skill, target, xi.attackType.MAGICAL, xi.damageType.WIND, 1)
 
     master:setMP(0)
     target:takeDamage(damage, pet, xi.attackType.MAGICAL, xi.damageType.WIND)

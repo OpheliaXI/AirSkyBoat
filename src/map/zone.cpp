@@ -108,6 +108,19 @@ int32 zone_update_weather(time_point tick, CTaskMgr::CTask* PTask)
     return 0;
 }
 
+const uint16 CZone::ReducedVerticalAggroZones[] = {
+    ZONE_KING_RANPERRES_TOMB,
+    ZONE_BEADEAUX,
+    ZONE_CASTLE_OZTROJA,
+    ZONE_GUSGEN_MINES,
+    ZONE_SHIP_BOUND_FOR_MHAURA,
+    ZONE_SHIP_BOUND_FOR_MHAURA_PIRATES,
+    ZONE_SHIP_BOUND_FOR_SELBINA,
+    ZONE_SHIP_BOUND_FOR_SELBINA_PIRATES,
+    ZONE_SILVER_SEA_ROUTE_TO_AL_ZAHBI,
+    ZONE_SILVER_SEA_ROUTE_TO_NASHMAU
+};
+
 /************************************************************************
  *                                                                       *
  *  Class CZone                                                          *
@@ -133,6 +146,11 @@ CZone::CZone(ZONEID ZoneID, REGION_TYPE RegionID, CONTINENT_TYPE ContinentID)
     m_zoneEntities       = new CZoneEntities(this);
     m_CampaignHandler    = new CCampaignHandler(this);
 
+    m_ZoneDirection     = 0;
+    m_ZoneAnimation     = 0;
+    m_ZoneAnimStartTime = 0;
+    m_ZoneAnimLength    = 0;
+
     // settings should load first
     LoadZoneSettings();
 
@@ -143,6 +161,8 @@ CZone::CZone(ZONEID ZoneID, REGION_TYPE RegionID, CONTINENT_TYPE ContinentID)
 
 CZone::~CZone()
 {
+    delete m_TreasurePool;
+    delete m_CampaignHandler;
     delete m_zoneEntities;
 }
 
@@ -348,7 +368,7 @@ void CZone::LoadZoneWeather()
     }
     else
     {
-        ShowFatalError("CZone::LoadZoneWeather: Cannot load zone weather (%u). Ensure zone_weather.sql has been imported!", m_zoneID);
+        ShowCritical("CZone::LoadZoneWeather: Cannot load zone weather (%u). Ensure zone_weather.sql has been imported!", m_zoneID);
     }
 }
 
@@ -409,7 +429,7 @@ void CZone::LoadZoneSettings()
     }
     else
     {
-        ShowFatalError("CZone::LoadZoneSettings: Cannot load zone settings (%u)", m_zoneID);
+        ShowCritical("CZone::LoadZoneSettings: Cannot load zone settings (%u)", m_zoneID);
     }
 }
 
@@ -427,6 +447,7 @@ void CZone::LoadNavMesh()
 
     if (!m_navMesh->load(file))
     {
+        DebugNavmesh("CZone::LoadNavMesh: Cannot load navmesh file (%s)", file);
         delete m_navMesh;
         m_navMesh = nullptr;
     }
@@ -846,7 +867,7 @@ void CZone::ZoneServer(time_point tick, bool check_regions)
         m_BattlefieldHandler->HandleBattlefields(tick);
     }
 
-    if (ZoneTimer && m_zoneEntities->CharListEmpty() && m_timeZoneEmpty + 5s < server_clock::now())
+    if (ZoneTimer && m_zoneEntities->CharListEmpty() && m_timeZoneEmpty + 300s < server_clock::now())
     {
         ZoneTimer->m_type = CTaskMgr::TASK_REMOVE;
         ZoneTimer         = nullptr;
@@ -916,6 +937,11 @@ void CZone::ForEachNpc(std::function<void(CNpcEntity*)> func)
     {
         func((CNpcEntity*)PNpc.second);
     }
+}
+
+bool CZone::HasReducedVerticalAggro()
+{
+    return std::find(std::begin(ReducedVerticalAggroZones), std::end(ReducedVerticalAggroZones), this->m_zoneID) != std::end(ReducedVerticalAggroZones);
 }
 
 void CZone::createZoneTimer()
@@ -1134,6 +1160,45 @@ void CZone::CheckRegions(CCharEntity* PChar)
         }
     }
     PChar->m_InsideRegionID = RegionID;
+}
+
+//==========================================================
+
+void CZone::SetZoneDirection(uint8 direction)
+{
+    m_ZoneDirection = direction;
+}
+void CZone::SetZoneAnimation(uint8 animation)
+{
+    m_ZoneAnimation = animation;
+}
+void CZone::SetZoneAnimStartTime(uint32 startTime)
+{
+    m_ZoneAnimStartTime = startTime;
+}
+void CZone::SetZoneAnimLength(uint16 length)
+{
+    m_ZoneAnimLength = length;
+}
+
+uint8 CZone::GetZoneDirection()
+{
+    return m_ZoneDirection;
+}
+
+uint8 CZone::GetZoneAnimation()
+{
+    return m_ZoneAnimation;
+}
+
+uint32 CZone::GetZoneAnimStartTime()
+{
+    return m_ZoneAnimStartTime;
+}
+
+uint16 CZone::GetZoneAnimLength()
+{
+    return m_ZoneAnimLength;
 }
 
 //===========================================================

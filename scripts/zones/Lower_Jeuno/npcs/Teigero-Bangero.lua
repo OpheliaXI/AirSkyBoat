@@ -4,7 +4,7 @@
 -- Involved in Quests: Save the Clock Tower, The Lost Cardian
 -- !pos -58 0 -143 245
 -----------------------------------
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/quests")
 -----------------------------------
 local entity = {}
@@ -73,8 +73,8 @@ end
 
 entity.onEventFinish = function(player, csid, option)
     if csid == 74 then
-        player:addCharVar("saveTheClockTowerVar", 1)
-        player:addCharVar("saveTheClockTowerNPCz2", 128)
+        player:incrementCharVar("saveTheClockTowerVar", 1)
+        player:incrementCharVar("saveTheClockTowerNPCz2", 128)
     elseif csid == 29 then
         player:setCharVar("theLostCardianVar", 1)
     end

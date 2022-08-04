@@ -8,7 +8,7 @@
 -----------------------------------
 require("scripts/globals/jobpoints")
 require("scripts/globals/weaponskills")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/magic")
 require("scripts/globals/msg")
@@ -62,7 +62,7 @@ ability_object.onUseAbility = function(player, target, ability, action)
     end
 
     local base = weaponDamage + fstr
-    local cratio, _ = cMeleeRatio(player, target, params, 0, 0)
+    local cratio, _ = cMeleeRatio(player, target, params, 0, 0, xi.slot.MAIN)
     local isSneakValid = player:hasStatusEffect(xi.effect.SNEAK_ATTACK)
     if (isSneakValid and not player:isBehind(target)) then
         isSneakValid = false

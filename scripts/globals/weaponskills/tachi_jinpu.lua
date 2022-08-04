@@ -13,7 +13,7 @@
 -----------------------------------
 require("scripts/globals/magic")
 require("scripts/globals/status")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/weaponskills")
 -----------------------------------
 local weaponskill_object = {}
@@ -28,10 +28,10 @@ weaponskill_object.onUseWeaponSkill = function(player, target, wsID, tp, primary
     params.atk100 = 1 params.atk200 = 1 params.atk300 = 1
     params.hybridWS = true
     params.includemab = true
-    params.ele = xi.magic.ele.WIND
-    params.skill = xi.skill.GREAT_KATANA
+    params.element = xi.magic.ele.WIND
+    params.skillType = xi.skill.GREAT_KATANA
 
-    if (xi.settings.USE_ADOULIN_WEAPON_SKILL_CHANGES == true) then
+    if (xi.settings.main.USE_ADOULIN_WEAPON_SKILL_CHANGES == true) then
         params.ftp100 = 0.5 params.ftp200 = 0.75 params.ftp300 = 1
         params.str_wsc = 0.3
     end

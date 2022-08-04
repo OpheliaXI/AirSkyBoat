@@ -92,7 +92,7 @@ uint16 CBattlefield::GetZoneID() const
     return m_Zone->GetID();
 }
 
-const std::string& CBattlefield::GetName() const
+std::string const& CBattlefield::GetName() const
 {
     return m_Name;
 }
@@ -162,7 +162,7 @@ duration CBattlefield::GetLastTimeUpdate() const
     return m_LastPromptTime;
 }
 
-uint64_t CBattlefield::GetLocalVar(const std::string& name) const
+uint64_t CBattlefield::GetLocalVar(std::string const& name) const
 {
     auto var = m_LocalVars.find(name);
     return var != m_LocalVars.end() ? var->second : 0;
@@ -183,12 +183,12 @@ uint8 CBattlefield::GetLevelCap() const
     return m_LevelCap;
 }
 
-void CBattlefield::SetName(const std::string& name)
+void CBattlefield::SetName(std::string const& name)
 {
     m_Name = name;
 }
 
-void CBattlefield::SetInitiator(const std::string& name)
+void CBattlefield::SetInitiator(std::string const& name)
 {
     m_Initiator.name = name;
 }
@@ -208,7 +208,7 @@ void CBattlefield::SetArea(uint8 area)
     m_Area = area;
 }
 
-void CBattlefield::SetRecord(const std::string& name, duration time, size_t partySize)
+void CBattlefield::SetRecord(std::string const& name, duration time, size_t partySize)
 {
     m_Record.name      = !name.empty() ? name : m_Initiator.name;
     m_Record.time      = time;
@@ -236,7 +236,7 @@ void CBattlefield::SetLevelCap(uint8 cap)
     m_LevelCap = cap;
 }
 
-void CBattlefield::SetLocalVar(const std::string& name, uint64_t value)
+void CBattlefield::SetLocalVar(std::string const& name, uint64_t value)
 {
     m_LocalVars[name] = value;
 }
@@ -253,12 +253,12 @@ void CBattlefield::ApplyLevelRestrictions(CCharEntity* PChar) const
 
     if (cap > 0)
     {
-        cap += map_config.Battle_cap_tweak; // We wait till here to do this because we don't want to modify uncapped battles.
+        cap += settings::get<int8>("map.BATTLE_CAP_TWEAK"); // We wait till here to do this because we don't want to modify uncapped battles.
 
         // Check if it's a mission and if config setting applies.
-        if (map_config.lv_cap_mission_bcnm == 0 && m_isMission == 1)
+        if (!settings::get<bool>("map.LV_CAP_MISSION_BCNM") && m_isMission == 1)
         {
-            cap = luautils::GetSettingsVariable("MAX_LEVEL"); // Cap to server max level to strip buffs - this is the retail diff between uncapped and capped to max lv.
+            cap = settings::get<uint8>("main.MAX_LEVEL"); // Cap to server max level to strip buffs - this is the retail diff between uncapped and capped to max lv.
         }
 
         PChar->StatusEffectContainer->DelStatusEffectsByFlag(EFFECTFLAG_DEATH, true);
@@ -504,6 +504,14 @@ bool CBattlefield::RemoveEntity(CBaseEntity* PEntity, uint8 leavecode)
             luautils::OnBattlefieldLeave(PChar, this, leavecode);
         }
         charutils::SendClearTimerPacket(PChar);
+
+        // Remove the player's pet as well
+        if (PChar->PPet)
+        {
+            PChar->PPet->StatusEffectContainer->DelStatusEffectsByFlag(EFFECTFLAG_CONFRONTATION, true);
+            PChar->PPet->StatusEffectContainer->DelStatusEffect(EFFECT_LEVEL_RESTRICTION);
+            ClearEnmityForEntity(PChar->PPet);
+        }
     }
     else
     {

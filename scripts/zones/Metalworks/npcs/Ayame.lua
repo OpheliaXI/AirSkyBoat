@@ -9,7 +9,7 @@ local ID = require("scripts/zones/Metalworks/IDs")
 require("scripts/globals/keyitems")
 require("scripts/globals/magic")
 require("scripts/globals/missions")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/quests")
 require("scripts/globals/status")
 require("scripts/globals/titles")
@@ -59,7 +59,7 @@ entity.onEventFinish = function(player, csid, option)
         end
     elseif (csid == 935) then
         player:setCharVar("WildcatBastok", utils.mask.setBit(player:getCharVar("WildcatBastok"), 9, true))
-    elseif (csid == 803 and option == 1) then
+    elseif (csid == 803 and option == 0) then -- accepting returns option 0, declining returns option 1073741824 ???
         player:setCharVar("FadedPromises", 2)
     elseif (csid == 804) then
         player:setCharVar("FadedPromises", 4)

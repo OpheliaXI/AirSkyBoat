@@ -15,7 +15,7 @@
 -- 3.00      3.00      3.00
 -----------------------------------
 require("scripts/globals/aftermath")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/status")
 require("scripts/globals/weaponskills")
 -----------------------------------
@@ -31,7 +31,7 @@ weaponskill_object.onUseWeaponSkill = function(player, target, wsID, tp, primary
     params.acc100 = 0.0 params.acc200 = 0.0 params.acc300 = 0.0
     params.atk100 = 1; params.atk200 = 1; params.atk300 = 1
 
-    if xi.settings.USE_ADOULIN_WEAPON_SKILL_CHANGES then
+    if xi.settings.main.USE_ADOULIN_WEAPON_SKILL_CHANGES then
         -- Ftp was Tested
         params.ftp100 = 5 params.ftp200 = 5 params.ftp300 = 5
         params.dex_wsc = 0.8
@@ -43,7 +43,7 @@ weaponskill_object.onUseWeaponSkill = function(player, target, wsID, tp, primary
     local damage, criticalHit, tpHits, extraHits = doPhysicalWeaponskill(player, target, wsID, params, tp, action, primary, taChar)
     if damage > 0 then
         if not target:hasStatusEffect(xi.effect.PARALYSIS) then
-            local duration = 60 * applyResistanceAddEffect(player, target, xi.magic.ele.ICE, 0)
+            local duration = 60 * applyResistanceAddEffect(player, target, xi.magic.ele.ICE, ((player:getMainLvl() / 7.5) * (tp / 1000)))
             target:addStatusEffect(xi.effect.PARALYSIS, 10, 0, duration)
         end
     end

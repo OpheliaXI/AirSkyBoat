@@ -42,6 +42,7 @@ along with this program.  If not, see http://www.gnu.org/licenses/
 #include "items/item_linkshell.h"
 #include "utils/charutils.h"
 #include "utils/jailutils.h"
+#include "utils/serverutils.h"
 #include "utils/zoneutils.h"
 
 namespace message
@@ -551,7 +552,7 @@ namespace message
             case MSG_LUA_FUNCTION:
             {
                 auto str    = std::string((const char*)extra.data() + 4);
-                auto result = luautils::lua.safe_script(str);
+                auto result = lua.safe_script(str);
                 if (!result.valid())
                 {
                     sol::error err = result;
@@ -559,11 +560,43 @@ namespace message
                 }
             }
             break;
+            case MSG_CHARVAR_UPDATE:
+            {
+                uint8* data   = (uint8*)extra.data();
+                uint32 charId = ref<uint32>(data, 0);
+                int32  value  = ref<int32>(data, 4);
+
+                ShowDebug(fmt::format("Received message to update var for {}", charId));
+
+                uint8 varNameSize = ref<uint8>(data, 8);
+                auto  varName     = std::string(data + 9, data + 9 + varNameSize);
+
+                if (auto player = zoneutils::GetChar(charId))
+                {
+                    ShowDebug(fmt::format("Updating charvar for {} ({}): {} = {}", player->GetName(), charId, varName, value));
+                    player->updateCharVarCache(varName, value);
+                }
+                break;
+            }
             default:
             {
                 ShowWarning("Message: unhandled message type %d", type);
             }
         }
+    }
+
+    void send_charvar_update(uint32 charId, std::string const& varName, uint32 value)
+    {
+        uint32 size = sizeof(uint32) + sizeof(int32) + sizeof(uint8) + static_cast<uint32>(varName.size());
+        char*  buf  = new char[size];
+        memset(&buf[0], 0, size);
+
+        ref<uint32>(buf, 0) = charId;
+        ref<int32>(buf, 4)  = value;
+        ref<uint8>(buf, 8)  = (uint8)varName.size();
+        memcpy(buf + 9, varName.c_str(), varName.size());
+
+        message::send(MSG_CHARVAR_UPDATE, buf, size, nullptr);
     }
 
     void handle_incoming()
@@ -625,6 +658,11 @@ namespace message
         }
     }
 
+    void init()
+    {
+        init(settings::get<std::string>("network.ZMQ_IP").c_str(), settings::get<uint16>("network.ZMQ_PORT"));
+    }
+
     void init(const char* chatIp, uint16 chatPort)
     {
         TracyZoneScoped;
@@ -651,7 +689,7 @@ namespace message
         zSocket->set(zmq::sockopt::routing_id, zmq::const_buffer(&ipp, sizeof(ipp)));
         zSocket->set(zmq::sockopt::rcvtimeo, 500);
 
-        string_t server = "tcp://";
+        std::string server = "tcp://";
         server.append(chatIp);
         server.append(":");
         server.append(std::to_string(chatPort));
@@ -662,7 +700,7 @@ namespace message
         }
         catch (zmq::error_t& err)
         {
-            ShowFatalError("Message: Unable to connect chat socket: %s", err.what());
+            ShowCritical("Message: Unable to connect chat socket: %s", err.what());
         }
     }
 

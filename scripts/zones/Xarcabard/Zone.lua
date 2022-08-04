@@ -32,7 +32,7 @@ zone_object.onZoneIn = function(player, prevZone)
     if
         not player:hasKeyItem(xi.ki.VIAL_OF_SHROUDED_SAND) and
         player:getRank(player:getNation()) >= 6 and
-        player:getMainLvl() >= xi.settings.DYNA_LEVEL_MIN and
+        player:getMainLvl() >= xi.settings.main.DYNA_LEVEL_MIN and
         not utils.mask.getBit(dynamisMask, 0)
     then
         cs = 13
@@ -43,6 +43,12 @@ zone_object.onZoneIn = function(player, prevZone)
     end
 
     return cs
+end
+
+zone_object.onZoneOut = function(player)
+    if player:hasStatusEffect(xi.effect.BATTLEFIELD) then
+        player:delStatusEffect(xi.effect.BATTLEFIELD)
+	end
 end
 
 zone_object.onConquestUpdate = function(zone, updatetype)

@@ -5,7 +5,7 @@
 -- !pos -66 -3 -148 238
 -----------------------------------
 local ID = require("scripts/zones/Windurst_Waters/IDs")
-require("scripts/settings/main")
+require("scripts/globals/settings")
 require("scripts/globals/keyitems")
 require("scripts/globals/npc_util")
 require("scripts/globals/quests")
@@ -95,17 +95,17 @@ entity.onEventFinish = function(player, csid, option)
         local rewards = {fame = 75, fameArea = xi.quest.fame_area.WINDURST, var = {"QuestHatInHand_var", "QuestHatInHand_count"}}
 
         if rewardTier == 5 then
-            rewards.gil = 500
+            rewards.gil = 200
             rewards.item = 12543
         elseif rewardTier == 4 then
-            rewards.gil = 400
+            rewards.gil = 175
             rewards.item = 12543
         elseif rewardTier == 3 then
-            rewards.gil = 300
-        elseif rewardTier == 2 then
             rewards.gil = 150
+        elseif rewardTier == 2 then
+            rewards.gil = 100
         elseif rewardTier == 1 then
-            rewards.gil = 300
+            rewards.gil = 50
         end
 
         if npcUtil.completeQuest(player, xi.quest.log_id.WINDURST, xi.quest.id.windurst.HAT_IN_HAND, rewards) then
@@ -125,7 +125,7 @@ entity.onEventFinish = function(player, csid, option)
             player:addFame(xi.quest.fame_area.WINDURST, 8)
             player:setCharVar("QuestFeatherInOnesCap_var", 0)
         end
-        player:addGil(xi.settings.GIL_RATE * 1500)
+        player:addGil(xi.settings.main.GIL_RATE * 1500)
         player:confirmTrade()
         player:needToZone(true)
     end
