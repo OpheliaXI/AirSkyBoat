@@ -374,13 +374,6 @@ namespace zoneutils
         {
             while (sql->NextRow() == SQL_SUCCESS)
             {
-                const char* contentTag = (const char*)sql->GetData(77);
-
-                if (!luautils::IsContentEnabled(contentTag))
-                {
-                    continue;
-                }
-
                 uint16    ZoneID   = (uint16)sql->GetUIntData(0);
                 ZONE_TYPE zoneType = GetZone(ZoneID)->GetType();
 
@@ -597,6 +590,7 @@ namespace zoneutils
         {
             PZone->ForEachMob([](CMobEntity* PMob)
             {
+                const char* contentTag = (const char*)sql->GetData(77);
                 luautils::OnMobInitialize(PMob);
                 luautils::ApplyMixins(PMob);
                 luautils::ApplyZoneMixins(PMob);
@@ -604,13 +598,16 @@ namespace zoneutils
                 PMob->saveMobModifiers();
                 PMob->m_AllowRespawn = PMob->m_SpawnType == SPAWNTYPE_NORMAL;
 
-                if (PMob->m_AllowRespawn)
+                if (luautils::IsContentEnabled(contentTag))
                 {
-                    PMob->Spawn();
-                }
-                else
-                {
-                    PMob->PAI->Internal_Respawn(std::chrono::milliseconds(PMob->m_RespawnTime));
+                    if (PMob->m_AllowRespawn)
+                    {
+                        PMob->Spawn();
+                    }
+                    else
+                    {
+                        PMob->PAI->Internal_Respawn(std::chrono::milliseconds(PMob->m_RespawnTime));
+                    }
                 }
             });
         });

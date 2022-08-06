@@ -1411,7 +1411,9 @@ Usage:
         fire_meva, ice_meva, wind_meva, earth_meva, lightning_meva, water_meva, light_meva, dark_meva, \
         Element, mob_pools.familyid, name_prefix, entityFlags, animationsub, \
         (mob_family_system.HP / 100), (mob_family_system.MP / 100), hasSpellScript, spellList, mob_groups.poolid, \
-        allegiance, namevis, aggro, mob_pools.skill_list_id, mob_pools.true_detection, mob_family_system.detects \
+        allegiance, namevis, aggro, mob_pools.skill_list_id, mob_pools.true_detection, mob_family_system.detects, mob_family_system.charmable, \
+        mob_resistances.fire_eem, mob_resistances.ice_eem, mob_resistances.wind_eem, mob_resistances.earth_eem, mob_resistances.lightning_eem, mob_resistances.water_eem, \
+        mob_resistances.light_eem, mob_resistances.dark_eem  \
         FROM mob_groups INNER JOIN mob_pools ON mob_groups.poolid = mob_pools.poolid \
         INNER JOIN mob_resistances ON mob_pools.resist_id = mob_resistances.resist_id \
         INNER JOIN mob_family_system ON mob_pools.familyid = mob_family_system.familyID \
@@ -1485,6 +1487,15 @@ Usage:
                 PMob->setModifier(Mod::LIGHT_SDT, (int16)sql->GetIntData(44));   // Modifier 60, base 10000 stored as signed integer. Positives signify less damage.
                 PMob->setModifier(Mod::DARK_SDT, (int16)sql->GetIntData(45));    // Modifier 61, base 10000 stored as signed integer. Positives signify less damage.
 
+                PMob->setModifier(Mod::FIRE_EEM, (int16)sql->GetIntData(71));    // Modifier 1157, base 100 stored as signed integer. Positives signify modified meva for that element.
+                PMob->setModifier(Mod::ICE_EEM, (int16)sql->GetIntData(72));     // Modifier 1158, base 100 stored as signed integer. Positives signify modified meva for that element.
+                PMob->setModifier(Mod::WIND_EEM, (int16)sql->GetIntData(73));    // Modifier 1159, base 100 stored as signed integer. Positives signify modified meva for that element.
+                PMob->setModifier(Mod::EARTH_EEM, (int16)sql->GetIntData(74));   // Modifier 1160, base 100 stored as signed integer. Positives signify modified meva for that element.
+                PMob->setModifier(Mod::THUNDER_EEM, (int16)sql->GetIntData(75)); // Modifier 1161, base 100 stored as signed integer. Positives signify modified meva for that element.
+                PMob->setModifier(Mod::WATER_EEM, (int16)sql->GetIntData(76));   // Modifier 1162, base 100 stored as signed integer. Positives signify modified meva for that element.
+                PMob->setModifier(Mod::LIGHT_EEM, (int16)sql->GetIntData(77));   // Modifier 1163, base 100 stored as signed integer. Positives signify modified meva for that element.
+                PMob->setModifier(Mod::DARK_EEM, (int16)sql->GetIntData(78));    // Modifier 1164, base 100 stored as signed integer. Positives signify modified meva for that element.
+
                 PMob->setModifier(Mod::FIRE_MEVA, (int16)(sql->GetIntData(46))); // These are stored as signed integers which
                 PMob->setModifier(Mod::ICE_MEVA, (int16)(sql->GetIntData(47)));  // is directly the modifier starting value.
                 PMob->setModifier(Mod::WIND_MEVA, (int16)(sql->GetIntData(48))); // Positives signify increased resist chance.
@@ -1529,6 +1540,15 @@ Usage:
                 PMob->m_MobSkillList  = sql->GetUIntData(67);
                 PMob->m_TrueDetection = sql->GetUIntData(68);
                 PMob->m_Detects       = sql->GetUIntData(69);
+
+                PMob->setMobMod(MOBMOD_CHARMABLE, sql->GetUIntData(70));
+                // Overwrite base family charmables depending on mob type. Disallowed mobs which should be charmable
+                // can be set in mob_spawn_mods or in their onInitialize
+                if (PMob->m_Type & MOBTYPE_EVENT || PMob->m_Type & MOBTYPE_FISHED || PMob->m_Type & MOBTYPE_BATTLEFIELD ||
+                    PMob->m_Type & MOBTYPE_NOTORIOUS)
+                {
+                    PMob->setMobMod(MOBMOD_CHARMABLE, 0);
+                }
 
                 // must be here first to define mobmods
                 mobutils::InitializeMob(PMob, zoneutils::GetZone(targetZoneId));
