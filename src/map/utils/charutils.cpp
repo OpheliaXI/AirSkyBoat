@@ -3602,9 +3602,9 @@ namespace charutils
                 for (auto* PMember : members)
                 {
                     // Check for gilfinder
-                    gilPerPerson += gilPerPerson * PMember->getMod(Mod::GILFINDER) / 100;
-                    UpdateItem(PMember, LOC_INVENTORY, 0, gilPerPerson);
-                    PMember->pushPacket(new CMessageBasicPacket(PMember, PMember, gilPerPerson, 0, 565));
+                    auto memberGil = gilPerPerson * (100 + PMember->getMod(Mod::GILFINDER)) / 100;
+                    UpdateItem(PMember, LOC_INVENTORY, 0, memberGil);
+                    PMember->pushPacket(new CMessageBasicPacket(PMember, PMember, memberGil, 0, 565));
                 }
             }
         }
