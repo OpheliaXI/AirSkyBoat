@@ -310,7 +310,7 @@ end
 
 xi.dynamis.onDeathDynaLord = function(mob, player, isKiller)
     local zone = mob:getZone()
-    xi.dynamis.megaBossOnDeath(mob, player, isKiller)
+    xi.dynamis.megaBossDeath(mob, player, isKiller)
     if isKiller then
         mob:showText(mob, lordText + 2)
         local dwagons = {zone:getLocalVar("177"), zone:getLocalVar("178")}
