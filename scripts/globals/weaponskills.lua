@@ -215,7 +215,7 @@ end
 -- Disable variable checking for this function.
 -- luacheck: ignore 113
 -- luacheck: ignore 111
-local function getRangedHitRate(attacker, target, capHitRate, bonus, wsParams)
+local function getRangedHitRate(attacker, target, capHitRate, bonus, wsParams, calcParams)
     local accVarryTP = 0
 
     if wsParams and wsParams.acc100 ~= 0 then
