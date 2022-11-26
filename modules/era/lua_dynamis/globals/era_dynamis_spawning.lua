@@ -1495,7 +1495,7 @@ xi.dynamis.spawnDynamicPet =function(target, oMob, mobJob)
         {
             ["Apocalyptic Beast"] =
             {
-                ["onMobFight"] = { function(mob, target) xi.dynamis.onFightApocDRG(mob, target) end },
+                ["onMobFight"] = { function(mob, target) print("test") xi.dynamis.onFightApocDRG(mob, target) end },
                 ["mixins"] = {   },
             },
             ["Dagourmarche"] =
@@ -1532,7 +1532,7 @@ xi.dynamis.spawnDynamicPet =function(target, oMob, mobJob)
         groupId = nameObj[2],
         groupZoneId = nameObj[3],
         onMobSpawn = function(mob) xi.dynamis.setPetStats(mob) end,
-        onMobFight = petFunctions[mobJob][functionLookup]["onMobFight"],
+        onMobFight = petFunctions[mobJob][functionLookup]["onMobFight"][1],
         onMobDeath = function(mob, player, optParams) xi.dynamis.onPetDeath(mob) end,
         onMobDespawn = function (mob) xi.dynamis.mobOnDespawn(mob) end,
         releaseIdOnDeath = true,
@@ -1847,7 +1847,7 @@ end
 
 xi.dynamis.setPetStats = function(mob)
     if mob:getFamily() == 34 then
-        mob:setModelId(math.random(791, 798))
+        mob:setModelId(math.random(793, 798))
     end
     mob:setMobType(xi.mobskills.mobType.BATTLEFIELD)
     mob:addStatusEffect(xi.effect.BATTLEFIELD, 1, 0, 0, true)
@@ -1932,13 +1932,15 @@ xi.dynamis.mobOnDeath = function(mob, player, optParams)
             if zoneID == xi.zone.DYNAMIS_VALKURM then
                 local flies = { 21, 22, 23}
                 if mobIndex == flies[1] or mobIndex == flies[2] or mobIndex == flies[3] then
-                    xi.dynamis.valkQMSpawnCheck(mob, zone, zoneID)
+                    xi.dynamis.nightmareFlyCheck(mob, zone, zoneID)
                 end
             end
         end
+
         if mobIndex ~= 0 and mobIndex ~= nil then
             xi.dynamis.addTimeToDynamis(zone, mobIndex) -- Add Time
         end
+
         mob:setLocalVar("dynamisMobOnDeathTriggered", 1) -- onDeath lua happens once per party member that killed the mob, but we want this to only run once per mob
     end
 
@@ -1964,7 +1966,10 @@ m:addOverride("xi.dynamis.megaBossOnDeath", function(mob, player)
         winQM:setStatus(xi.status.NORMAL) -- Make visible
         mob:setLocalVar("GaveTimeExtension", 1)
     end
-    player:addTitle(xi.dynamis.dynaInfoEra[zoneID].winTitle) -- Give player the title
+
+    if player then
+        player:addTitle(xi.dynamis.dynaInfoEra[zoneID].winTitle) -- Give player the title
+    end
 end)
 
 --------------------------------------------
