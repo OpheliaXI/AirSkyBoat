@@ -111,6 +111,9 @@ end
 entity.onMobSpawn = function(mob)
     local master = mob:getMaster()
 
+    -- innate +40 subtle blow
+    mob:addMod(xi.mod.SUBTLE_BLOW, 40)
+
     if master:getMod(xi.mod.WYVERN_SUBJOB_TRAITS) > 0 then
         mob:addJobTraits(master:getSubJob(), master:getSubLvl())
     end

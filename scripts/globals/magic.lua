@@ -1371,7 +1371,7 @@ xi.magic.getElementalDebuffDOT = function(INT)
     return DOT
 end
 
-function getElementalDebuffStatDownFromDOT(dot)
+xi.magic.getElementalDebuffStatDownFromDOT = function(dot)
     return (dot - 1) * 2 + 5
 end
 

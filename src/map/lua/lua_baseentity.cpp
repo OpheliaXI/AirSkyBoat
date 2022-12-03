@@ -5992,7 +5992,7 @@ void CLuaBaseEntity::addTitle(uint16 titleID)
 {
     if (!(m_PBaseEntity->objtype & TYPE_PC))
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -6015,7 +6015,7 @@ void CLuaBaseEntity::setTitle(uint16 titleID)
 {
     if (!(m_PBaseEntity->objtype & TYPE_PC))
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -6033,7 +6033,7 @@ void CLuaBaseEntity::delTitle(uint16 titleID)
 {
     if (!(m_PBaseEntity->objtype & TYPE_PC))
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -13875,7 +13875,7 @@ void CLuaBaseEntity::setDelay(uint16 delay)
 {
     if (!(m_PBaseEntity->objtype & TYPE_MOB))
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -13914,7 +13914,7 @@ void CLuaBaseEntity::setDamage(uint16 damage)
 {
     if (!(m_PBaseEntity->objtype & TYPE_MOB))
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -13932,7 +13932,7 @@ bool CLuaBaseEntity::hasSpellList()
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return false;
     }
 
@@ -13950,7 +13950,7 @@ void CLuaBaseEntity::setSpellList(uint16 spellList)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -13968,11 +13968,11 @@ void CLuaBaseEntity::setAutoAttackEnabled(bool state)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
-    m_PBaseEntity->PAI->GetController()->SetAutoAttackEnabled(state);
+    m_PBaseEntity->PAI->GetController()->setAutoAttackEnabled(state);
 }
 
 /************************************************************************
@@ -13986,11 +13986,11 @@ void CLuaBaseEntity::setMagicCastingEnabled(bool state)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
-    m_PBaseEntity->PAI->GetController()->SetMagicCastingEnabled(state);
+    m_PBaseEntity->PAI->GetController()->setMagicCastingEnabled(state);
 }
 
 /************************************************************************
@@ -14004,7 +14004,7 @@ void CLuaBaseEntity::setMobAbilityEnabled(bool state)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -14022,7 +14022,7 @@ void CLuaBaseEntity::setMobSkillAttack(int16 listId)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -14064,7 +14064,7 @@ int16 CLuaBaseEntity::getMobMod(uint16 mobModID)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return MOBMOD_NONE;
     }
 
@@ -14082,7 +14082,7 @@ void CLuaBaseEntity::addMobMod(uint16 mobModID, int16 value)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -14100,7 +14100,7 @@ void CLuaBaseEntity::setMobMod(uint16 mobModID, int16 value)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 
@@ -14118,7 +14118,7 @@ void CLuaBaseEntity::delMobMod(uint16 mobModID, int16 value)
 {
     if (m_PBaseEntity->objtype & TYPE_NPC || m_PBaseEntity->objtype & TYPE_PC)
     {
-        ShowError("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
+        ShowWarning("function call on invalid entity! (name: %s type: %d)", m_PBaseEntity->name, m_PBaseEntity->objtype);
         return;
     }
 

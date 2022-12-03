@@ -20,10 +20,6 @@ abilityObject.onPetAbility = function(target, pet, skill)
     params.includemab = true
     params.maccBonus = xi.summon.getSummoningSkillOverCap(pet)
     params.ignoreStateLock = true
-    local master = pet:getMaster()
-    if master ~= nil and master:isPC() then
-        merits = master:getMerit(xi.merit.WIND_BLADE)
-    end
 
     local damage = xi.summon.avatarMagicSkill(pet, target, skill, params)
 
