@@ -231,7 +231,6 @@ xi.settings.main =
     DIG_GRANT_BORE               = 0,
     DIG_DISTANCE_REQ             = 0, -- Sets the distance squared in yalms of how far a player has to move.
     DIG_FATIGUE_SKILL_UP         = false, -- Allows for skilling up while at fatigue.
-    DIG_ABUNDANCE_BONUS          = 0,     -- Increase chance of digging up an item (450  = item digup chance +45)
 
     -- MISC
     RIVERNE_PORTERS              = 120,  -- Time in seconds that Unstable Displacements in Cape Riverne stay open after trading a scale.
