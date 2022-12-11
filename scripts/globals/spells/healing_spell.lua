@@ -104,9 +104,7 @@ xi.spells.healing.getAbilityBonus = function(caster, isWhiteMagic)
         caster:delStatusEffect(xi.effect.RAPTURE)
     end
 
-    bonus = utils.ternary(caster:hasStatusEffect(xi.effect.DIVINE_SEAL), bonus * 2, bonus)
-
-    return bonus
+    return utils.ternary(caster:hasStatusEffect(xi.effect.DIVINE_SEAL), bonus * 2, bonus)
 end
 
 xi.spells.healing.handleAfflatusSolace = function(caster, target, final)
