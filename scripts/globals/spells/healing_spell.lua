@@ -130,7 +130,7 @@ xi.spells.healing.doHealingSpell = function(caster, target, spell, isWhiteMagic)
     local spellId      = spell:getID()
     local power        = xi.spells.healing.calculatePower(caster)
     local healingTable = xi.spells.healing.getHealTable(power, spellId)
-    local base         = utils.clamp(((power / 2) / healingTable.rate) + healingTable.constant, healingTable.minCap, healingTable.maxCap)
+    local base         = utils.clamp((math.floor(power / 2) / healingTable.rate) + healingTable.constant, healingTable.minCap, healingTable.maxCap)
     local healingspell = true
 
     if xi.magic.isValidHealTarget(caster, target) then
