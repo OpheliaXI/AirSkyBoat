@@ -71,9 +71,7 @@ xi.spells.healing.handleDayWeatherBonus = function(caster, bonus, iridescence, e
     dbonus = utils.ternary(dayElement == element, 0.10, dbonus)
     dbonus = utils.ternary(dbonus == 0 and dayElement == xi.magic.elementDescendant[element], -0.10, dbonus)
 
-    dwbonus = dwbonus + dbonus
-
-    return math.min(dwbonus, 1.35)
+    return math.min(dwbonus + dbonus, 1.35)
 end
 
 xi.spells.healing.getDayWeatherBonus = function(caster, element)
