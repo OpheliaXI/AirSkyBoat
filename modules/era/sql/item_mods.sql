@@ -18,7 +18,8 @@ REPLACE INTO `item_mods` (`itemid`, `modid`, `value`) VALUES
     (13887,521,10), -- Black Sallet AUGMENTS_ABSORB: 10
     (14010,521,10), -- Black Gadlings AUGMENTS_ABSORB: 10
     (15400,521,10), -- Black Cuisses AUGMENTS_ABSORB: 10
-    (15339,521,10); -- Black Sollerets AUGMENTS_ABSORB: 10
+    (15339,521,10), -- Black Sollerets AUGMENTS_ABSORB: 10
+    (15365,362,10); -- Drachen Greaves +1 JUMP_ATT_BONUS: 10
 
 -- Set Critical hit rate bonus in main/sub slots to apply only to slot with CRITHITRATE_SLOT mod
 UPDATE item_mods
